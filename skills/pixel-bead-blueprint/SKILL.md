@@ -7,7 +7,7 @@ version: 1.5.0
 
 # 像素事务所 · AI 拼豆辅导 Skill（pixel-bead-blueprint）
 
-> 版本：v1.5.0（2026-11-21）｜本次更新（**工程量收口，命令行用法与产出零改动**）：① 文件配额收口 **31 → 26**（`test-cases` 8→2、`references/palette.*.json` 5→1，CLI 别名不变）；② 新增**可跑评测** `evals/`（6 项 CLI 断言 + 2 项人工验收，报告 `BENCHMARK.md`）；③ 新增 `skill-card.md`（信任记录：权限矩阵/风险/验证状态）与 `VERIFY.md`（OMS 验签说明）；④ 新增**目录级签名** `skill.oms.sig`（OpenSSF Model Signing，ECDSA P-256 自签）；⑤ 提供 GitHub 仓库结构 `skills/pixel-bead-blueprint/`，可被 `npx skills add` / `gh skill install` 发现。实测：回归 57/57、评测 6/6。
+> 版本：v1.5.0（2026-11-21）｜本次更新（**工程量收口，命令行用法与产出零改动**）：① 文件配额收口 **31 → 26**（`test-cases` 8→2、`references/palette.*.json` 5→1，CLI 别名不变）；② 新增**可跑评测** `evals/`（6 项 CLI 断言 + 2 项人工验收，报告 `BENCHMARK.md`）；③ 新增 `skill-card.md`（信任记录：权限矩阵/风险/验证状态）与 `VERIFY.md`（OMS 验签说明）；④ 新增**目录级签名** `skill.oms.sig`（OpenSSF Model Signing，ECDSA P-256 自签；**随 GitHub 分发，平台提交包不含**，验签见 `VERIFY.md`）；⑤ 提供 GitHub 仓库结构 `skills/pixel-bead-blueprint/`，可被 `npx skills add` / `gh skill install` 发现。实测：回归 57/57、评测 6/6。
 >
 > 上版 v1.4.0（2026-11-16）：① **清理 2 个运行产物 jpg**——包内真正做到零二进制，与本节自述一致（样张由 `fixtures.html` 运行时解包，不随包发）；② 新增「安全边界」一节，逐条说明跑什么、读写什么、联不联网，每条附复核命令；③ `assets/README.md` 文末补「完整性校验」（关键文件 SHA256 + 核对方法，不额外占文件配额）；④ 版本号统一 v1.4.0（SKILL.md / package.json）；⑤ **新增「平色几何图直接给格子」判据**，并把像素画的题材边界写明（只擅长简笔画/扁平插画/几何构图，照片与渐变必然散）
 > 上版 v1.3.0（2026-11-06）：五维优化——① 新增「真实使用场景 / 打印与施工 / 复用出口 / 演示与传播」四节；② 复用给出 3 步可当场验证的路径（换色盘字典即换材料）；③ 平台格式对齐——全部 `.js` + 样张 base64 内联 HTML，包内不含任何 `.jpg/.png`

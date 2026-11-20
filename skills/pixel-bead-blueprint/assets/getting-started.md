@@ -1,6 +1,6 @@
 # 像素事务所 · 拼豆图纸 AI Skill（pixel-bead-blueprint）· 小白上手指南
 
-> 版本：2026-10-28 ｜ 配套提交包：`pixel-bead-blueprint-skill-20261028.zip`（26 文件；压缩包约 2.5 MB / 解压约 3.7 MB；首次运行会从 fixtures.html 自动解包样张）
+> 版本：2026-10-28 ｜ 配套提交包：`pixel-bead-blueprint-skill-20261028.zip`（平台提交包 25 文件 / 解压约 3.7 MB；GitHub 分发版 26 另含签名；首次运行会从 fixtures.html 自动解包样张）
 > 一句话：**给 AI 装上「拼豆老师」技能**——你发一张图，它还你一套「照着就能拼」的完整图纸，还陪你从头拼到尾。
 
 ---
