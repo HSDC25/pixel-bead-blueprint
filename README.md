@@ -64,7 +64,7 @@ blueprint-ascii.txt 文本矩阵（可逐行核数）
 
 ```bash
 node --test scripts/test/run.js      # 回归测试：57 项全过
-node evals/run-evals.cjs             # 评测集：6 项 CLI 用例 + 2 项人工验收 → BENCHMARK.md
+node evals/run-evals.js             # 评测集：6 项 CLI 用例 + 2 项人工验收 → BENCHMARK.md
 python -m model_signing verify certificate skills/pixel-bead-blueprint \
   --signature skills/pixel-bead-blueprint/skill.oms.sig --certificate_chain pki/pixel-studio-skill-cert.pem
 ```
@@ -94,7 +94,7 @@ pixel-bead-blueprint/                    ← 仓库根
         ├── references/                   ← 算法 .js / 辅导协议 / palettes.json（5 套色盘合并）
         ├── scripts/                      ← run.js（CLI）+ test/（回归测试 + 样张载体）
         ├── test-cases/                   ← cases.md（功能判据 + 场景剧本 + 触发语）+ trigger.md
-        └── evals/                        ← evals.json + run-evals.cjs + BENCHMARK.md
+        └── evals/                        ← evals.json + run-evals.js + BENCHMARK.md
 ```
 
 ## 题材边界（如实说明）

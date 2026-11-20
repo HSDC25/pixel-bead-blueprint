@@ -3,7 +3,7 @@
 > 出品：像素事务所（Pixel Bureau）
 
 > ⚠️ **时效性**：本文基于 2026-10-28 修订（示例换蒙德里安公版图 / 数字按当前 CLI 复测；58 项测试 / review.png 视觉终审 + 交付门禁 / `--refine` 自动迭代 / `--patch-cells` 改格回路）。后续变更以实际文件为准。
-> **本目录即提交单元**：目录名 `pixel-bead-blueprint` 与 `SKILL.md` 的 frontmatter `name` **一致**（已核对）；**26 文件 / 解压约 3.7 MB**，满足赛题「单次 ≤30 文件 / ≤40MB」，**尚余 4 个配额**（新增 `evals/` 三件 + `VERIFY.md` + `skill.oms.sig`）。2026-11-21 两轮收口：① `test-cases` 8 → 2（`cases.md` = 功能判据 + 场景剧本 ×5 + 触发语表；`trigger.md` 留给 test-runner）；② `references/palette.*.json` 5 → 1（`palettes.json`，键 = mard / mard291 / perler / artkal-c197 / artkal-m221，CLI 别名不变）。另把新增 `skill-card.md`（技能卡）纳入配额。2026-11-21 追加：`evals/evals.json` + `run-evals.cjs` + `BENCHMARK.md`（可跑评测 6 项 CLI + 2 项人工）、`VERIFY.md`（OMS 验签说明）、`skill.oms.sig`（目录级签名）。
+> **本目录即提交单元**：目录名 `pixel-bead-blueprint` 与 `SKILL.md` 的 frontmatter `name` **一致**（已核对）；**26 文件 / 解压约 3.7 MB**，满足赛题「单次 ≤30 文件 / ≤40MB」，**尚余 4 个配额**（新增 `evals/` 三件 + `VERIFY.md` + `skill.oms.sig`）。2026-11-21 两轮收口：① `test-cases` 8 → 2（`cases.md` = 功能判据 + 场景剧本 ×5 + 触发语表；`trigger.md` 留给 test-runner）；② `references/palette.*.json` 5 → 1（`palettes.json`，键 = mard / mard291 / perler / artkal-c197 / artkal-m221，CLI 别名不变）。另把新增 `skill-card.md`（技能卡）纳入配额。2026-11-21 追加：`evals/evals.json` + `run-evals.js` + `BENCHMARK.md`（可跑评测 6 项 CLI + 2 项人工）、`VERIFY.md`（OMS 验签说明）、`skill.oms.sig`（目录级签名）。
 > **结构**（对照官方技能包规范：根目录只留 `SKILL.md`，其余按白名单归位）：
 >
 > ```

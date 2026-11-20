@@ -66,7 +66,7 @@ python -m model_signing verify certificate skills/pixel-bead-blueprint \
 任何文件改动都会让严格验签失败，因此下列操作后必须重新签名：
 
 1. 修改 `SKILL.md` / 脚本 / 文档 / 色盘；
-2. 重跑 `node evals/run-evals.cjs`（会覆盖 `evals/BENCHMARK.md`）；
+2. 重跑 `node evals/run-evals.js`（会覆盖 `evals/BENCHMARK.md`）；
 3. 重跑 `node --test scripts/test/run.js` 若产物落进技能目录（正常情况落在临时目录，不会）。
 
 重新签名（发布者本机）：

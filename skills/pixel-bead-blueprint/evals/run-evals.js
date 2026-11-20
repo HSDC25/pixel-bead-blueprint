@@ -1,21 +1,24 @@
 #!/usr/bin/env node
 /**
- * run-evals.cjs — pixel-bead-blueprint 可跑评测（Tier 3 口径的最小实现）
+ * run-evals.js — pixel-bead-blueprint 可跑评测（Tier 3 口径的最小实现，ESM）
  *
- * 用法：node evals/run-evals.cjs [--only EVAL-A-001] [--json]
+ * 用法：node evals/run-evals.js [--only EVAL-A-001] [--json]
  * 行为：读 evals/evals.json，对 kind=cli 的用例执行 CLI 并做机器判定；
  *       kind=manual 的用例只打印人工检查清单（不判 PASS/FAIL）。
  * 输出：终端表格 + BENCHMARK.md（覆盖写），退出码 0 = 全部 cli 用例通过。
  *
  * 不依赖网络、不修改包内文件（临时输出落在系统 tmp 目录）。
+ * 注：包内 package.json 为 "type": "module"，因此本文件使用 ESM（import）。
  */
-const fs = require('node:fs')
-const os = require('node:os')
-const path = require('node:path')
-const { spawnSync } = require('node:child_process')
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = path.resolve(__dirname, '..')
-const SPEC = JSON.parse(fs.readFileSync(path.join(__dirname, 'evals.json'), 'utf-8'))
+const HERE = path.dirname(fileURLToPath(import.meta.url))
+const ROOT = path.resolve(HERE, '..')
+const SPEC = JSON.parse(fs.readFileSync(path.join(HERE, 'evals.json'), 'utf-8'))
 const argv = process.argv.slice(2)
 const only = argv.includes('--only') ? argv[argv.indexOf('--only') + 1] : null
 const asJson = argv.includes('--json')
@@ -37,11 +40,6 @@ function runCli (args, ctx) {
     env: { ...process.env, NO_COLOR: '1' }
   })
   return { code: res.status, out: `${res.stdout || ''}${res.stderr || ''}` }
-}
-
-function checkJson (file, fields, problems) {
-  const p = path.join(file.dir || file, file.name || '')
-  return p
 }
 
 /** 断言：返回问题列表（空数组 = 通过） */
@@ -189,7 +187,7 @@ if (asJson) console.log(JSON.stringify({ pass, total: cli.length, results, secs 
 const md = []
 md.push('# BENCHMARK — pixel-bead-blueprint')
 md.push('')
-md.push(`> 生成：\`node evals/run-evals.cjs\` ｜ 时间：${new Date().toISOString()} ｜ 版本：v${SPEC.version}`)
+md.push(`> 生成：\`node evals/run-evals.js\` ｜ 时间：${new Date().toISOString()} ｜ 版本：v${SPEC.version}`)
 md.push(`> 结果：**${pass}/${cli.length} cli 用例 PASS**，${results.length - cli.length} 项人工验收（manual），耗时 ${secs}s`)
 md.push('')
 md.push('| 用例 | 类型 | 结果 | 覆盖 |')
@@ -213,7 +211,7 @@ md.push('')
 md.push('- 只判定 **CLI 可机器判定的部分**：退出码、交付物清单、文本/JSON 字段、门禁双向、分块索引完整性与行列覆盖。')
 md.push('- `kind=manual` 属大模型在环行为（先问学员、参数给理由），需评审按 `test-cases/cases.md` 人工打勾。')
 md.push('- 评测不改包内文件：产物写在系统临时目录，跑完即弃。')
-fs.writeFileSync(path.join(__dirname, 'BENCHMARK.md'), md.join('\n') + '\n', 'utf-8')
+fs.writeFileSync(path.join(HERE, 'BENCHMARK.md'), md.join('\n') + '\n', 'utf-8')
 console.log('BENCHMARK.md 已更新')
 
 process.exit(failed ? 1 : 0)
