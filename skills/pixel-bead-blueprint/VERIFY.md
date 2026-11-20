@@ -48,6 +48,19 @@ python -m model_signing verify certificate skills/pixel-bead-blueprint \
   --ignore_unsigned_files
 ```
 
+## 签名忽略路径（重要）
+
+签名覆盖目录时**显式忽略**三类「跑一次就会多出来」的文件，否则交付包永远验不过：
+
+| 忽略路径 | 为什么 |
+|---|---|
+| `pixel-bead-output/` | CLI 默认输出目录，跑一次就生成 9 个文件 |
+| `scripts/test/fixtures/mondrian-1930-cii-original.jpg` | 回归测试首次运行时从 `fixtures.html` 解包 |
+| `scripts/test/fixtures/progressive-mondrian.jpg` | 同上 |
+
+因此：**跑过测试 / 评测之后再验签也应通过**（这些路径不参与比对）。
+正式交付包（26 文件）本来就不含这些文件——它们只在本地跑过之后出现。
+
 ## 什么时候需要重新签名
 
 任何文件改动都会让严格验签失败，因此下列操作后必须重新签名：
@@ -63,7 +76,10 @@ python -m model_signing sign certificate skills/pixel-bead-blueprint \
   --signature skills/pixel-bead-blueprint/skill.oms.sig \
   --private_key <本机私钥.pem> \
   --signing_certificate pki/pixel-studio-skill-cert.pem \
-  --certificate_chain pki/pixel-studio-skill-cert.pem
+  --certificate_chain pki/pixel-studio-skill-cert.pem \
+  --ignore-paths pixel-bead-output \
+  --ignore-paths scripts/test/fixtures/mondrian-1930-cii-original.jpg \
+  --ignore-paths scripts/test/fixtures/progressive-mondrian.jpg
 ```
 
 ## 实测坑（model-signing 1.1.1）
