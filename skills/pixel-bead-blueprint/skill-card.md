@@ -8,7 +8,7 @@
 | 字段 | 值 |
 |---|---|
 | name | `pixel-bead-blueprint`（像素事务所） |
-| version | `1.4.0`（2026-11-16） |
+| version | `1.5.0`（2026-11-21） |
 | 类型 | Agent Skill（Anthropic Agent Skills 规范：`SKILL.md` + `scripts/` + `references/` + `assets/`） |
 | 所有者 / 作者 | 像素事务所（个人开发者，作者本人维护） |
 | 分发渠道 | 小红书 Red Skill 商店（`redskill`）；GitHub 仓库**尚未建立** |
@@ -98,4 +98,4 @@
 4. GitHub 仓库（`skills/pixel-bead-blueprint/SKILL.md` 结构）→ 可被 `npx skills add` / `gh skill install` 安装
 
 ---
-*本卡片随 v1.4.0 维护。任何字段与实际不符，以包内文件与实测输出为准。*
+*本卡片随 v1.5.0 维护。任何字段与实际不符，以包内文件与实测输出为准。*

@@ -1,6 +1,6 @@
 # 测试用例合集 — pixel-bead-blueprint
 
-> 本文件合并了原先的 `functional.md` + `test-case-1..5.md` + `test-prompts.md`（v1.4.0 收口，为满足「单次 ≤30 文件」配额）。
+> 本文件合并了原先的 `functional.md` + `test-case-1..5.md` + `test-prompts.md`（v1.4.0 首次收口，v1.5.0 继续合并色盘 5→1，为满足「单次 ≤30 文件」配额）。
 > **分层分工（单一写方约定）**：
 > - **第一部分 = 机器可执行的验收判据**，供仓库智能检视流水线（hmos-skill-test-runner）与人工验证共用 —— 冲突时一律以本部分为准。
 > - **第二部分 = 叙述式场景剧本**，给 agent / 人工演示流程用，其「预期」段只是剧情摘要。

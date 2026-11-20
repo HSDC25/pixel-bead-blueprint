@@ -4,7 +4,7 @@
 
 - **零第三方依赖**（只用 `node:` 内置模块）｜**零二进制**｜**运行时不联网**｜只写输出目录
 - Agent Skill 规范：`SKILL.md` + `scripts/` + `references/` + `assets/`，兼容 Claude Code / Codex / Cursor / OpenCode / Copilot 等支持 skills 的智能体
-- 当前版本 **v1.4.0**，包内 **24 个文件**
+- 当前版本 **v1.5.0**，包内 **26 个文件**
 
 ## 安装
 
@@ -26,7 +26,7 @@ npx skills add <your-github-user>/pixel-bead-blueprint -a claude-code
 ```bash
 gh skill install <your-github-user>/pixel-bead-blueprint
 gh skill install <your-github-user>/pixel-bead-blueprint --agent claude-code --scope user
-gh skill install <your-github-user>/pixel-bead-blueprint --pin v1.4.0   # 锁版本
+gh skill install <your-github-user>/pixel-bead-blueprint --pin v1.5.0   # 锁版本
 ```
 
 **方式三：手动**
@@ -65,6 +65,8 @@ blueprint-ascii.txt 文本矩阵（可逐行核数）
 ```bash
 node --test scripts/test/run.js      # 回归测试：57 项全过
 node evals/run-evals.cjs             # 评测集：6 项 CLI 用例 + 2 项人工验收 → BENCHMARK.md
+python -m model_signing verify certificate skills/pixel-bead-blueprint \
+  --signature skills/pixel-bead-blueprint/skill.oms.sig --certificate_chain pki/pixel-studio-skill-cert.pem
 ```
 
 | 维度 | 现状 |
@@ -73,6 +75,7 @@ node evals/run-evals.cjs             # 评测集：6 项 CLI 用例 + 2 项人�
 | 评测集 | CLI 6 / 6 pass，另有 2 项大模型在环人工验收 |
 | 完整性 | 关键文件 SHA256 见 `skills/pixel-bead-blueprint/assets/README.md` |
 | 交付门禁 | 空判定表 → `REVIEW_UNFILLED` + exit 3；填完 → `REVIEW_SIGNED` + exit 0 |
+| 目录级签名 | ✅ OMS 自签（`skill.oms.sig`，验签见 `skills/pixel-bead-blueprint/VERIFY.md`） |
 | 第三方认证 | **无**（详见 `skills/pixel-bead-blueprint/skill-card.md` 的验证状态表） |
 
 ## 目录结构
