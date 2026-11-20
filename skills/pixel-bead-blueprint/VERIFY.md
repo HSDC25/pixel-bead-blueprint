@@ -1,67 +1,104 @@
-# 签名与验签说明（签名文件在 GitHub，不随平台包提交）
+# 签名与验签说明
 
-> **本平台提交包共 25 个文件，不含 `skill.oms.sig`**（平台白名单不收 `.sig`）。
-> 签名文件 `skill.oms.sig` 与证书放在 GitHub 仓库，任何人可离线验签 —— 下面给出完整步骤。
-> 换句话说：**包本身可验（SHA256 / 回归测试 / 评测），签名可验（GitHub 下载后）**，两者互不依赖。
+> **签名数据在本目录的 `SIGNATURE.md` 里**（base64 内嵌）。还原成 `skill.oms.sig` 后即可离线验签。
+> 为什么不用独立的 `.sig` 文件：平台白名单不收该扩展名；为什么签名不直接写进本文件：见第四节「自引用」。
 
-## 签名覆盖什么
+## 一、签名盖住了什么
 
-GitHub 分发的技能目录带一份分离签名 `skill.oms.sig`，格式为 **OpenSSF Model Signing (OMS)**，
-覆盖目录内每个文件与子目录（签名文件本身除外）。可以验证「下载到的目录 == 发布时签过的目录」。
+格式为 OpenSSF Model Signing（OMS / Sigstore bundle，分离签名），覆盖本目录内**除 `SIGNATURE.md` 与 `skill.oms.sig` 之外**的每个文件。
+`SIGNATURE.md` 是签名之后新增的载体，因此验签要加 `--ignore_unsigned_files`（只忽略「未签名的新增文件」，改动任何已签文件仍会失败）。
 
-> ⚠️ 签名能证明什么、不能证明什么
-> - 能证明：**完整性 + 来源一致性**（目录没被改过，且由持有该证书私钥的人签出）。
-> - 不能证明：代码安全、质量合格、获得官方认证。本签名使用**自签证书**。
-> - 安全边界与风险见 `skill-card.md`；行为判据见 `test-cases/cases.md`。
+> ⚠️ 能证明 / 不能证明
+> - 能证明：**已签文件未被改动**，且由持有该证书私钥的人签出。
+> - 不能证明：代码安全、质量合格、获得官方认证；也不能发现「有人额外塞进来的新文件」（这是本方案的已知取舍，见第五节）。
+> - 本签名使用**自签证书**。安全边界见 `skill-card.md`；行为判据见 `test-cases/cases.md`。
 
-## 签名信息
+## 二、签名与证书信息
 
 | 项 | 值 |
 |---|---|
-| 签名格式 | OpenSSF Model Signing（Sigstore bundle，分离签名） |
+| 签名格式 | OpenSSF Model Signing（Sigstore bundle） |
 | PKI 方式 | `certificate`（X.509 自签） |
 | 签署主体 | `CN=Pixel Studio Skill Signing, O=Pixel Studio, C=CN` |
-| 证书文件 | GitHub 仓库根 `pki/pixel-studio-skill-cert.pem` |
+| 证书位置 | 内嵌在 `SIGNATURE.md` 的 `CERTBASE64` 块；GitHub 仓库另有 `pki/pixel-studio-skill-cert.pem` |
 | 证书指纹（SHA256） | `4A:56:E5:FA:FB:41:A2:00:F6:B1:E0:7E:88:68:AA:AE:16:13:EA:C3:E2:E1:38:E4:48:60:23:1D:1B:5D:01:24` |
 | 签名算法 | **ECDSA P-256 / SHA-256** |
 | 有效期 | 10 年（2026-11-21 签发） |
 
-私钥不在仓库、不在任何提交包内。
+私钥不在本目录、不在任何提交包内。
 
-## 怎么验（三步，离线可跑）
+## 三、验签三步
+
+### 1) 还原签名与证书（从 `SIGNATURE.md`）
+
+```powershell
+# Windows PowerShell
+$t = Get-Content SIGNATURE.md -Raw
+$ms = [regex]::Matches($t,'(?s)<!-- (\w+):START -->(.*?)<!-- \1:END -->')
+$sig = ($ms[0].Groups[2].Value) -replace '\s',''
+[IO.File]::WriteAllBytes("$PWD\skill.oms.sig", [Convert]::FromBase64String($sig))
+$certB = ($ms[1].Groups[2].Value) -replace '\s',''
+[IO.File]::WriteAllText("$PWD\cert.pem", "-----BEGIN CERTIFICATE-----`n" + (($certB -replace '(.{64})', ('$1' + "`n")).Trim()) + "`n-----END CERTIFICATE-----`n")
+```
+
+```python
+# macOS / Linux（python3）：存成 restore.py 再运行
+import re, base64, pathlib
+s = pathlib.Path('SIGNATURE.md').read_text(encoding='utf-8')
+blk = re.findall(r'(?s)<!-- (\w+):START -->(.*?)<!-- \1:END -->', s)
+pathlib.Path('skill.oms.sig').write_bytes(base64.b64decode(''.join(blk[0][1].split())))
+b64 = ''.join(blk[1][1].split())
+pem = '-----BEGIN CERTIFICATE-----\n' + '\n'.join(b64[i:i+64] for i in range(0, len(b64), 64)) + '\n-----END CERTIFICATE-----\n'
+pathlib.Path('cert.pem').write_text(pem, encoding='ascii')
+```
+
+### 2) 安装验证器
 
 ```bash
-# 1) 安装官方验证器
 pip install model-signing
+```
 
-# 2) 从 GitHub 取「带签名的技能目录」与证书
-git clone https://github.com/<your-github-user>/pixel-bead-blueprint.git
-cd pixel-bead-blueprint
+### 3) 验签
 
-# 3) 验签（严格模式：多一个未签名文件即失败）
-python -m model_signing verify certificate skills/pixel-bead-blueprint \
-  --signature skills/pixel-bead-blueprint/skill.oms.sig \
-  --certificate_chain pki/pixel-studio-skill-cert.pem \
-  --ignore-paths pixel-bead-output \
-  --ignore-paths scripts/test/fixtures/mondrian-1930-cii-original.jpg \
-  --ignore-paths scripts/test/fixtures/progressive-mondrian.jpg
+```bash
+python -m model_signing verify certificate . \
+  --signature skill.oms.sig \
+  --certificate_chain cert.pem \
+  --ignore_unsigned_files
 ```
 
 输出 `Verification succeeded` 即通过。
+**必须带 `--ignore_unsigned_files`** —— 因为 `SIGNATURE.md` 是签名之后才加进来的载体。
 
-## 签名忽略路径（重要）
+## 四、为什么签名不写进本文件（自引用问题）
 
-签名时**显式忽略**三类「跑一次就会多出来」的文件，否则验签永远失败：
+目录级签名不能覆盖「装着签名的那个文件」：
 
-| 忽略路径 | 为什么 |
+1. 若把 base64 写进 `VERIFY.md`，签名前它必须已含 base64，而 base64 又是签名的产物 —— 循环依赖；
+2. 直觉方案是「签名时忽略 VERIFY.md」，但 **model-signing 1.1.1 的 `--ignore-paths` 实测无效**（见第五节坑 5）;
+3. 所以改用官方另一条路：**签名后新增 `SIGNATURE.md` 作为载体**，验签时 `--ignore_unsigned_files` 忽略它。
+
+## 五、实测坑（model-signing 1.1.1，2026-11-21）
+
+| # | 现象 | 结论 |
+|---|---|---|
+| 1 | 只传 `--signing_certificate` → `Unable to load PEM file … MalformedFraming` | certificate 模式**必须同时传 `--certificate_chain`** |
+| 2 | RSA 私钥 → `RSAPublicKey object has no attribute 'curve'` | **必须 ECDSA P-256** |
+| 3 | 证书无扩展 → `Signing certificate cannot be used for signing` | 证书要带 **KeyUsage + ExtendedKeyUsage(codeSigning)** |
+| 4 | `--certificate-chain` 报选项不存在 | 参数名是**下划线** |
+| 5 | `--ignore-paths b.txt` / `./b.txt` / 目录 `sub` 全无效（实测：三者仍出现在签名清单） | **1.1.1 的 `--ignore-paths` 不可用**；改用 `--ignore_unsigned_files` |
+| 6 | 严格模式多一个文件 → `Extra files found` | 加 `--ignore_unsigned_files` 可忽略**新增**文件；但**改动已签文件仍会 Hash mismatch**（已实测） |
+
+## 六、本方案的已知取舍
+
+| 项 | 说明 |
 |---|---|
-| `pixel-bead-output/` | CLI 默认输出目录，跑一次生成 9 个文件 |
-| `scripts/test/fixtures/mondrian-1930-cii-original.jpg` | 回归测试首次运行时从 `fixtures.html` 解包 |
-| `scripts/test/fixtures/progressive-mondrian.jpg` | 同上 |
+| 新增文件不设防 | 有人往目录里**添加**文件，`--ignore_unsigned_files` 下不会被发现 |
+| 缓解 | 交付包文件数与清单在 `assets/README.md` 固定；评审可按清单核对是否多出文件 |
+| 若平台支持 `.sig` | 把 `SIGNATURE.md` 还原出的 `skill.oms.sig` 单独提交，验签去掉 `--ignore_unsigned_files` 即为严格模式 |
+| 证书可信度 | 自签：能证「未被改动」，发布者身份需自行信任本仓库 |
 
-因此：**跑过测试/评测之后再验签也应通过**（这些路径不参与比对）。平台提交包本来就不含这些文件。
-
-## 不靠签名也能验的东西（包内自带）
+## 七、不靠签名也能验的东西
 
 ```bash
 node --test scripts/test/run.js     # 回归测试 57 项（实测 57/57）
@@ -70,19 +107,15 @@ node evals/run-evals.js             # 评测 6 项 CLI（实测 6/6）+ 2 项人
 
 关键文件 SHA256 见 `assets/README.md` 文末「完整性校验」。
 
-## 实测坑（model-signing 1.1.1）
+## 八、重签流程（发布者本机）
 
-1. **certificate 模式必须同时传 `--certificate_chain`**，只传 `--signing_certificate` 会报
-   `Unable to load PEM file ... MalformedFraming`。
-2. **不支持 RSA**：报 `RSAPublicKey object has no attribute 'curve'`，必须用 ECDSA P-256。
-3. 证书必须带 **KeyUsage / ExtendedKeyUsage**，否则报 `Signing certificate cannot be used for signing`。
-4. 参数名是下划线：`--certificate_chain` / `--signing_certificate` / `--private_key`。
-
-## 已知取舍
-
-| 项 | 现状 | 升级路径 |
-|---|---|---|
-| 证书可信度 | **自签**：能证「未被改动」，「发布者是谁」需自行信任本仓库 | 用组织/公共 CA 签发，或 Sigstore keyless（OIDC 身份） |
-| 透明度日志 | 未上传 Rekor | `--upload` 走 Sigstore 透明日志，可公开审计签名时间 |
-| 证书吊销 | 无 CRL/OCSP | 引入公网 CA 或企业 PKI |
-| 平台包是否含签名 | **不含**（白名单限制），签名随 GitHub 分发 | 若平台后续支持 `.sig`，可直接把仓库里的同名文件一并提交 |
+```powershell
+# 1) 删除旧载体与旧签名
+Remove-Item SIGNATURE.md, skill.oms.sig -Force -ErrorAction SilentlyContinue
+# 2) 签名（此时目录里没有 SIGNATURE.md）
+python -m model_signing sign certificate . --signature skill.oms.sig `
+  --private_key <私钥.pem> --signing_certificate <证书.pem> --certificate_chain <证书.pem>
+# 3) 用 skill.oms.sig 生成 SIGNATURE.md（base64 两块：SIGBASE64 / CERTBASE64），再删除 skill.oms.sig
+# 4) 验签自检
+python -m model_signing verify certificate . --signature skill.oms.sig --certificate_chain cert.pem --ignore_unsigned_files
+```

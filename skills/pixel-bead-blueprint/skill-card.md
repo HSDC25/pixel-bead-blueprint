@@ -40,7 +40,7 @@
 | 运行时 | Node.js ≥ 18（只用 `node:` 内置模块） |
 | 第三方依赖 | **0**（不需要 `npm install`） |
 | 包内二进制 | **0**（测试样张以 base64 内联在 `scripts/test/fixtures/fixtures.html`，首次运行时才解包） |
-| 包内文件数 | **平台提交包 25**（含本技能卡、`VERIFY.md`、`evals/` 三件；全为文本与源码）｜**GitHub 分发版 26**（额外含 `skill.oms.sig`）。上限 30 |
+| 包内文件数 | **26**（含本技能卡、`VERIFY.md`、`SIGNATURE.md`（内嵌签名载体）与 `evals/` 三件；全为文本与源码），上限 30 |
 | 外部服务 | 无 |
 
 ## 6. 权限矩阵（装它等于交出去什么）
@@ -73,7 +73,7 @@
 | 关键文件 SHA256 | `assets/README.md` 文末「完整性校验」；整包哈希以发布页 zip SHA256 为准 |
 | 零依赖 / 零联网 / 零二进制 | §6 的三条 `grep` 命令可逐条复核 |
 | 回归测试 | `scripts/test/run.js`：**实测 tests 57 / pass 57 / fail 0**（2026-11-21 复跑，约 18s） |
-| 文件数合规 | 实测 **平台包 25 / GitHub 版 26**（≤30），2026-11-21 合并 `test-cases` 8→2、`palette.*.json` 5→1 后达标 |
+| 文件数合规 | 实测 **26**（≤30），2026-11-21 合并 `test-cases` 8→2、`palette.*.json` 5→1 后达标 |
 | 交付门禁可复现 | 不填 `review.md` → `REVIEW_UNFILLED` + exit 3；填完 → `REVIEW_SIGNED` + exit 0 |
 | 产出可复现 | 同一输入重跑，`compare/sheet/review/blueprint.*` 逐字节一致（2026-11-18 实测 7 个文件 hash 相同） |
 
@@ -83,7 +83,7 @@
 |---|---|
 | 第三方安全扫描（如 SkillSpector） | **未做** |
 | 真实 Agent 沙箱评测（`evals/evals.json` + BENCHMARK） | **未做**（仅有 `test-cases/` 人工用例 5 组 + 触发用例） |
-| 目录级加密签名（OMS `skill.oms.sig`） | ✅ **已签**（自签证书，2026-11-21）。签名文件随 GitHub 分发，**平台提交包不含**（白名单不收 `.sig`）；验签步骤见 `VERIFY.md` |
+| 目录级加密签名（OMS） | ✅ **已签**（自签证书，2026-11-21）。签名以 base64 **内嵌在 `SIGNATURE.md`**（平台不收 `.sig`）；验签需 `--ignore_unsigned_files`，步骤见 `VERIFY.md` |
 | 官方目录认证（NVIDIA Verified 等） | **无** |
 | 自证完整性 | ✅ 有（SHA256 + 门禁 + 可复现） |
 
@@ -94,7 +94,7 @@
 
 1. `skill-card.md`（本文件，已有）
 2. `evals/evals.json` + `BENCHMARK.md`（把 `test-cases/` 转成可跑评测）
-3. ~~目录级签名：`skill.oms.sig` + 发布者证书链 + 验签说明~~ → **已完成（自签，随 GitHub 分发）**：`skill.oms.sig` + `VERIFY.md`；升级路线是用公共 CA / Sigstore keyless + Rekor 透明日志
+3. ~~目录级签名：签名文件 + 发布者证书链 + 验签说明~~ → **已完成（自签，内嵌 `SIGNATURE.md` + `VERIFY.md`）**；升级路线是用公共 CA / Sigstore keyless + Rekor 透明日志
 4. GitHub 仓库（`skills/pixel-bead-blueprint/SKILL.md` 结构）→ 可被 `npx skills add` / `gh skill install` 安装
 
 ---
