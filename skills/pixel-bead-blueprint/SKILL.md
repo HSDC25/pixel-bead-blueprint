@@ -20,7 +20,7 @@ version: 1.5.0
 > 一句话：上传任意图片 → AI 老师给「一份能拼的图纸」并**陪学员拼完**。AI 文生图给的是「一张像像素画的图」；离线 APP 给的是「图纸文件」；本 skill 给的是**图纸 + 因人而异的教学计划 + 施工期 AI 陪拼 + 完工复盘与库存闭环**。
 > **agent 必读辅导协议**：references/ai-tutor-protocol.md （六步辅导环 + 禁区红线）。
 >
-> **文件配额收口（2026-11-21）**：`test-cases/` 8 文件 → 2（`cases.md` + `trigger.md`）；`references/palette.*.json` 5 文件 → 1（`palettes.json`，键 = `mard` / `mard291` / `perler` / `artkal-c197` / `artkal-m221`）。包内文件数 **21**，满足赛题「≤30 文件」。CLI 用法不变：`--palette mard|mard291|perler|artkal-c197|artkal-m221`。
+> **文件配额收口（2026-11-21）**：`test-cases/` 8 文件 → 2（`cases.md` + `trigger.md`）；`references/palette.*.json` 5 文件 → 1（`palettes.json`，键 = `mard` / `mard291` / `perler` / `artkal-c197` / `artkal-m221`）。包内文件数 **26**，满足赛题「≤30 文件」。CLI 用法不变：`--palette mard|mard291|perler|artkal-c197|artkal-m221`。
 
 ## 触发词
 
@@ -342,4 +342,4 @@ node scripts/run.js scripts/test/fixtures/mondrian-1930-cii-original.jpg --grid 
 
 **传播禁忌（如实）**：不说「一键完美」。照片类输入量化后形会散，这是媒介表达力问题；包内已写明适用与不适用边界，不靠模糊话术兜。
 
-> 注：平台「介绍」字段是**独立文档**（≤10000 字节，见交付目录 `平台介绍-v1.4.0.md`）；本文件是 skill 本体（341 行，受 <500 行约束，不受 10000 字节限制）。完整技术文档见 references/full-doc.md。
+> 注：平台「介绍」字段是**独立文档**（≤10000 字节，见交付目录 `平台介绍-v1.5.0.md`）；本文件是 skill 本体（345 行，受 <500 行约束，不受 10000 字节限制）。完整技术文档见 references/full-doc.md。
