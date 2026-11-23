@@ -4,7 +4,7 @@
 
 - **零第三方依赖**（只用 `node:` 内置模块）｜**零二进制**｜**运行时不联网**｜只写输出目录
 - Agent Skill 规范：`SKILL.md` + `scripts/` + `references/` + `assets/`，兼容 Claude Code / Codex / Cursor / OpenCode / Copilot 等支持 skills 的智能体
-- 当前版本 **v1.5.0**，包内 **26 个文件**
+- 当前版本 **v1.5.2**，包内 **26 个文件**
 
 ## 安装
 
@@ -26,10 +26,14 @@ npx skills add <your-github-user>/pixel-bead-blueprint -a claude-code
 ```bash
 gh skill install <your-github-user>/pixel-bead-blueprint
 gh skill install <your-github-user>/pixel-bead-blueprint --agent claude-code --scope user
-gh skill install <your-github-user>/pixel-bead-blueprint --pin v1.5.0   # 锁版本
+gh skill install <your-github-user>/pixel-bead-blueprint --pin v1.5.2   # 锁版本
 ```
 
-**方式三：手动**
+**Windows 用户请先看这条**：小红书 RedSkill CLI 0.1.0 在 Windows 上一启动就报 ModuleNotFoundError: No module named fcntl（实测 2026-11-23），
+edskill install 走不通，商店渠道目前只适用于 macOS / Linux。Windows 请用上面的 
+px skills add / gh skill install，或直接解压发布 zip。
+
+**方式三：手动（Windows 需关 CRLF 转换）**
 
 ```bash
 git clone https://github.com/<your-github-user>/pixel-bead-blueprint.git

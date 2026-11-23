@@ -1,13 +1,14 @@
 ---
 name: pixel-bead-blueprint
 description: 像素事务所｜上传照片、手绘或 AI 图，生成可开工的拼豆图纸：色号表、施工图、ASCII 矩阵、采购清单与分块索引。以拼豆老师身份陪拼、验收、复盘、回收库存；支持色卡识别，只用你手上的豆子出图。内置 MARD/Perler/Artkal 色盘，触发词：教我拼拼豆、拼豆图纸、色号表。
-version: 1.5.1
+version: 1.5.2
 ---
 
 
 # 像素事务所 · AI 拼豆辅导 Skill（pixel-bead-blueprint）
 
-> 版本：v1.5.1（2026-11-23）｜补丁版，只修「怎么验」与「怎么取」，功能与 CLI 零改动：① 验签顺序写死 **先验签、再跑测试/评测**（`node evals/run-evals.js` 会改写 `BENCHMARK.md`，之后再验签必报该文件不符，属预期）；② 补 Windows 取回说明——默认 `git clone` 的 CRLF 转换会让 22 个已签文件全部 Hash mismatch，须用 `git -c core.autocrlf=false clone` 或 zip 解压；③ 重签名（sig 8,313 B，证书指纹不变）。v1.5.0 的收口保持不变：文件 **31 → 26**（`test-cases` 8→2、`palettes` 5→1，CLI 别名不变）、`evals/`（6 CLI + 2 人工）、`skill-card.md`、`VERIFY.md`、`SIGNATURE.md` 内嵌签名、`skills/pixel-bead-blueprint/` 仓库结构，可由 `npx skills add` / `gh skill install` 发现。实测：验签 → 回归 57/57 → 评测 6/6。
+> 版本：v1.5.2（2026-11-23）｜补丁版，功能与 CLI 零改动，只修「怎么验 / 怎么取 / 在哪装」：① 验签顺序固定为 **先验签、再跑测试/评测**（`node evals/run-evals.js` 会改写 `BENCHMARK.md`）；② Windows 用 `git clone` 须 `-c core.autocrlf=false`，否则 CRLF 让 22 个已签文件全部哈希不符；③ 小红书 RedSkill CLI 0.1.0 在 Windows 上启动即 `ModuleNotFoundError: fcntl`（实测 2026-11-23），Windows 请用发布 zip 或 `npx skills add`，商店安装仅 macOS / Linux；④ 重签名（sig 8,313 B，证书指纹不变）。v1.5.0 的收口保持不变：**31 → 26** 文件、`evals/`（6 CLI + 2 人工）、`skill-card.md`、`VERIFY.md`、`SIGNATURE.md` 内嵌签名。实测：验签 → 回归 57/57 → 评测 6/6。
+> **Windows 用户先看这条**：商店 CLI（RedSkill 0.1.0）在 Windows 上一启动就报 `fcntl` 缺失，`redskill install` 走不通。请直接用发布 zip 解压，或 `npx skills add HSDC25/pixel-bead-blueprint`；商店渠道只适用于 macOS / Linux。
 >
 > 上版 v1.4.0（2026-11-16）：① **清理 2 个运行产物 jpg**——包内真正做到零二进制，与本节自述一致（样张由 `fixtures.html` 运行时解包，不随包发）；② 新增「安全边界」一节，逐条说明跑什么、读写什么、联不联网，每条附复核命令；③ `assets/README.md` 文末补「完整性校验」（关键文件 SHA256 + 核对方法，不额外占文件配额）；④ 版本号统一 v1.4.0（SKILL.md / package.json）；⑤ **新增「平色几何图直接给格子」判据**，并把像素画的题材边界写明（只擅长简笔画/扁平插画/几何构图，照片与渐变必然散）
 > 上版 v1.3.0（2026-11-06）：五维优化——① 新增「真实使用场景 / 打印与施工 / 复用出口 / 演示与传播」四节；② 复用给出 3 步可当场验证的路径（换色盘字典即换材料）；③ 平台格式对齐——全部 `.js` + 样张 base64 内联 HTML，包内不含任何 `.jpg/.png`
@@ -342,4 +343,4 @@ node scripts/run.js scripts/test/fixtures/mondrian-1930-cii-original.jpg --grid 
 
 **传播禁忌（如实）**：不说「一键完美」。照片类输入量化后形会散，这是媒介表达力问题；包内已写明适用与不适用边界，不靠模糊话术兜。
 
-> 注：平台「介绍」字段是**独立文档**（≤10000 字节，见交付目录 `平台介绍-v1.5.1.md`）；本文件是 skill 本体（345 行，受 <500 行约束，不受 10000 字节限制）。完整技术文档见 references/full-doc.md。
+> 注：平台「介绍」字段是**独立文档**（≤10000 字节，见交付目录 `平台介绍-v1.5.2.md`）；本文件是 skill 本体（346 行，受 <500 行约束，不受 10000 字节限制）。完整技术文档见 references/full-doc.md。

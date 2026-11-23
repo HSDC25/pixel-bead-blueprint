@@ -101,6 +101,17 @@ python -m model_signing verify certificate . \
 | 7 | Windows 默认 `git clone`（`core.autocrlf=true`）→ **22 个已签文件全部** `Hash mismatch` | 换行符 LF→CRLF 改了字节；取回用 `git -c core.autocrlf=false clone` 或 zip 解压 |
 | 8 | 先跑 `node evals/run-evals.js` 再验签 → `Hash mismatch for 'evals/BENCHMARK.md'` | 评测把结果写回该文件（已在清单内）；**先验签、再评测** |
 
+## 五点五、分发渠道差异（实测 2026-11-23）
+
+| 渠道 | 取回内容 | 签名能否验过 | 说明 |
+|---|---|---|---|
+| 发布 zip 解压 | 26 文件，LF 原样 | ✅ 验过 | 最稳；`sha256` 与发布记录一致 |
+| `git -c core.autocrlf=false clone` | 26 文件，LF | ✅ 验过 | 必须关 CRLF 转换 |
+| `git clone`（Windows 默认） | 26 文件，CRLF | ❌ 22 个文件全不符 | 换行转换改了字节 |
+| 小红书 RedSkill 商店 | 26 文件（v1.5.0，3.4411 MB） | ✅ 验过 | 实测未改换行；但商店 CLI 在 Windows 上启动即 `ModuleNotFoundError: fcntl`，仅 macOS / Linux 可装 |
+
+结论：**签名只保证「字节未被改动」，不保证「渠道给你的是最新版」**。商店版可能是旧版本，验签只能证明它自己没被篡改。
+
 ## 六、本方案的已知取舍
 
 | 项 | 说明 |
