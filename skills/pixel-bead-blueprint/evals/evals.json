@@ -1,6 +1,6 @@
 {
   "skill": "pixel-bead-blueprint",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "schema": "agent-skill-evals/1",
   "runner": "node evals/run-evals.js",
   "notes": "kind=cli 可机器判定；kind=manual 需人工或大模型在环判定（先问学员、参数理由等行为类断言）。fixtures 由 scripts/test/fixtures/fixtures.html 解包，首次运行自动提取。",
