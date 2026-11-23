@@ -29,7 +29,7 @@ gh skill install <your-github-user>/pixel-bead-blueprint --agent claude-code --s
 gh skill install <your-github-user>/pixel-bead-blueprint --pin v1.5.2   # 锁版本
 ```
 
-**Windows 用户请先看这条**：小红书 RedSkill CLI 0.1.0 在 Windows 上一启动就报 ModuleNotFoundError: No module named fcntl（实测 2026-11-23），
+**Windows 用户请先看这条**：`npx skills add` / `gh skill install` 在 Windows 上走的是 `git clone`（默认 `core.autocrlf=true`），会把 LF 转成 CRLF；装完**功能正常但签名验不过**（实测：57/57 通过、验签 22 个文件全错）。若需要验签，请用发布 zip 解压。小红书 RedSkill CLI 0.1.0 在 Windows 上一启动就报 ModuleNotFoundError: No module named fcntl（实测 2026-11-23），
 edskill install 走不通，商店渠道目前只适用于 macOS / Linux。Windows 请用上面的 
 px skills add / gh skill install，或直接解压发布 zip。
 
