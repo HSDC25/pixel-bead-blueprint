@@ -29,6 +29,16 @@
 
 ## 三、验签三步
 
+> **顺序要求（实测，2026-11-23）**：**先验签，再跑测试 / 评测**。
+> `node evals/run-evals.js` 会把本轮结果写回 `evals/BENCHMARK.md`，该文件在签名清单内，跑完再验签必然报 `Hash mismatch for 'evals/BENCHMARK.md'`。
+> 同理，`node --test` 首次运行会从 `scripts/test/fixtures/fixtures.html` 解包 2 个样张 jpg（26 → 28 个文件），属新增文件，被 `--ignore_unsigned_files` 忽略，不影响验签。
+>
+> **Windows 换行提醒（实测，2026-11-23）**：在 Windows 用 `git clone` 取回时，默认 `core.autocrlf=true` 会把 LF 转成 CRLF，导致**22 个已签文件全部哈希不符**。取回请二选一：
+> - `git -c core.autocrlf=false clone https://github.com/HSDC25/pixel-bead-blueprint.git`
+> - 直接用发布 zip 解压（LF 原样保留）
+>
+> 实测对照：zip 解压 → `Verification succeeded`；`autocrlf=false` clone → `Verification succeeded`；默认 clone → 22 个 `Hash mismatch`（exit 1）。
+
 ### 1) 还原签名与证书（从 `SIGNATURE.md`）
 
 ```powershell
@@ -88,6 +98,8 @@ python -m model_signing verify certificate . \
 | 4 | `--certificate-chain` 报选项不存在 | 参数名是**下划线** |
 | 5 | `--ignore-paths b.txt` / `./b.txt` / 目录 `sub` 全无效（实测：三者仍出现在签名清单） | **1.1.1 的 `--ignore-paths` 不可用**；改用 `--ignore_unsigned_files` |
 | 6 | 严格模式多一个文件 → `Extra files found` | 加 `--ignore_unsigned_files` 可忽略**新增**文件；但**改动已签文件仍会 Hash mismatch**（已实测） |
+| 7 | Windows 默认 `git clone`（`core.autocrlf=true`）→ **22 个已签文件全部** `Hash mismatch` | 换行符 LF→CRLF 改了字节；取回用 `git -c core.autocrlf=false clone` 或 zip 解压 |
+| 8 | 先跑 `node evals/run-evals.js` 再验签 → `Hash mismatch for 'evals/BENCHMARK.md'` | 评测把结果写回该文件（已在清单内）；**先验签、再评测** |
 
 ## 六、本方案的已知取舍
 
