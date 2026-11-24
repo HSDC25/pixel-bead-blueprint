@@ -1,7 +1,7 @@
 # BENCHMARK — pixel-bead-blueprint
 
-> 生成：`node evals/run-evals.js` ｜ 时间：2026-11-23T14:25:58.301Z ｜ 版本：v1.5.2
-> 结果：**6/6 cli 用例 PASS**，2 项人工验收（manual），耗时 13.5s
+> 生成：`node evals/run-evals.js` ｜ 时间：2026-11-24T14:38:57.694Z ｜ 版本：v1.5.3
+> 结果：**6/6 cli 用例 PASS**，2 项人工验收（manual），耗时 13.0s
 
 | 用例 | 类型 | 结果 | 覆盖 |
 |---|---|---|---|

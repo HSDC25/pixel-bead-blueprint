@@ -1,7 +1,8 @@
 {
   "name": "pixel-bead-blueprint",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "像素事务所 · AI 拼豆辅导：图片 → 可开工拼豆图纸 + 辅导计划 + 库存闭环",
   "bin": {

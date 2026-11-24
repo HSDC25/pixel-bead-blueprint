@@ -1,53 +1,72 @@
 #!/usr/bin/env bash
-# verify-signature.sh —— 验 pixel-bead-blueprint 的目录签名（Linux / macOS）
-# 用法：
-#   bash verify-signature.sh [skill目录，默认当前目录]
-#   如 model_signing 装在虚拟环境里：PYTHON=~/msenv/bin/python bash verify-signature.sh <目录>
-set -uo pipefail
+set -euo pipefail
 
 DIR="${1:-.}"
 PY="${PYTHON:-python3}"
-cd "$DIR" || { echo "目录不存在: $DIR"; exit 2; }
-[ -f SIGNATURE.md ] || { echo "没找到 SIGNATURE.md —— 这个目录不是完整包"; exit 2; }
+EXPECTED_FP='4A56E5FAFB41A200F6B1E07E8868AAAE1613EAC3E2E138E44860231D1B5D0124'
 
-# 依赖检查
+SRC="$(cd "$DIR" && pwd -P)"
+[ -f "$SRC/SIGNATURE.md" ] || { echo '没找到 SIGNATURE.md：请指向解压后的 skill 目录。' >&2; exit 2; }
+
 if ! "$PY" -c 'import model_signing' >/dev/null 2>&1; then
-  echo "缺少验签工具 model_signing。先装一次（约 1 分钟）："
-  echo "  $PY -m pip install model-signing certifi pyopenssl"
-  echo "  # 注：model-signing 1.1.1 的依赖声明漏了 certifi / pyopenssl，必须一起装"
-  echo "  如装在虚拟环境：PYTHON=/path/to/venv/bin/python bash $0 $DIR"
+  echo "缺少 model_signing。请运行：$PY -m pip install model-signing==1.1.1 certifi pyopenssl" >&2
   exit 3
 fi
 
-python3 - "$PWD" <<'PY'
-import base64, io, os, re, sys
-d = sys.argv[1]
-md = io.open(os.path.join(d, 'SIGNATURE.md'), encoding='utf-8').read()
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
 
-def grab(key):
-    m = re.search(r'<!-- %s:START -->(.*?)<!-- %s:END -->' % (key, key), md, re.S)
-    if not m:
-        raise SystemExit('SIGNATURE.md 缺少 %s 段' % key)
-    return re.sub(r'\s', '', m.group(1))
+"$PY" - "$SRC" "$TMP" "$EXPECTED_FP" <<'PY'
+import base64
+import hashlib
+import pathlib
+import re
+import shutil
+import sys
 
-sig = base64.b64decode(grab('SIGBASE64'))
-io.open(os.path.join(d, 'skill.oms.sig'), 'wb').write(sig)
-c = grab('CERTBASE64')
-pem = '-----BEGIN CERTIFICATE-----\n' + '\n'.join(c[i:i + 64] for i in range(0, len(c), 64)) + '\n-----END CERTIFICATE-----\n'
-io.open(os.path.join(d, 'cert.pem'), 'w').write(pem)
-print('签名 %d B ｜ 证书 %d B' % (len(sig), len(c)))
+source = pathlib.Path(sys.argv[1])
+temp = pathlib.Path(sys.argv[2])
+expected = sys.argv[3]
+md = (source / 'SIGNATURE.md').read_text(encoding='utf-8')
+blocks = {}
+for key, value in re.findall(r'<!-- (\w+):START -->(.*?)<!-- \1:END -->', md, re.S):
+    if key in blocks:
+        raise SystemExit(f'SIGNATURE.md 包含重复的 {key} 块。')
+    blocks[key] = re.sub(r'\s', '', value)
+for key in ('SIGBASE64', 'CERTBASE64'):
+    if key not in blocks:
+        raise SystemExit(f'SIGNATURE.md 缺少 {key} 块。')
+
+signature = base64.b64decode(blocks['SIGBASE64'], validate=True)
+certificate_der = base64.b64decode(blocks['CERTBASE64'], validate=True)
+fingerprint = hashlib.sha256(certificate_der).hexdigest().upper()
+if fingerprint != expected:
+    raise SystemExit(f'证书指纹不受信任：{fingerprint}')
+
+(temp / 'skill.oms.sig').write_bytes(signature)
+certificate_b64 = blocks['CERTBASE64']
+pem = '-----BEGIN CERTIFICATE-----\n' + '\n'.join(
+    certificate_b64[i:i + 64] for i in range(0, len(certificate_b64), 64)
+) + '\n-----END CERTIFICATE-----\n'
+(temp / 'cert.pem').write_text(pem, encoding='ascii')
+
+stage = temp / 'skill'
+shutil.copytree(source, stage)
+(stage / 'SIGNATURE.md').unlink()
+print(f'签名 {len(signature)} B ｜ 可信证书指纹 {fingerprint}')
 PY
 
-rc=0
-"$PY" -m model_signing verify certificate "$PWD" \
-  --signature "$PWD/skill.oms.sig" \
-  --certificate_chain "$PWD/cert.pem" \
-  --ignore_unsigned_files || rc=$?
-rm -f "$PWD/skill.oms.sig" "$PWD/cert.pem"
+set +e
+"$PY" -m model_signing verify certificate "$TMP/skill" \
+  --no-ignore-git-paths --no-ignore_unsigned_files \
+  --signature "$TMP/skill.oms.sig" \
+  --certificate_chain "$TMP/cert.pem"
+rc=$?
+set -e
 
 if [ "$rc" -eq 0 ]; then
-  echo "==> 验签通过：这些文件与发布时逐字节一致"
+  echo '==> 严格验签通过：文件列表与每个文件的字节均和发布时一致。'
 else
-  echo "==> 验签失败（exit $rc）：文件被改过，或换行被转成 CRLF"
+  echo "==> 严格验签失败（exit $rc）：文件被修改、被新增，或 LF 被转成了 CRLF。" >&2
 fi
 exit "$rc"

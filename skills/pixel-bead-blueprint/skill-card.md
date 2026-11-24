@@ -8,11 +8,11 @@
 | 字段 | 值 |
 |---|---|
 | name | `pixel-bead-blueprint`（像素事务所） |
-| version | `1.5.2`（2026-11-23） |
+| version | `1.5.3`（2026-11-24） |
 | 类型 | Agent Skill（Anthropic Agent Skills 规范：`SKILL.md` + `scripts/` + `references/` + `assets/`） |
 | 所有者 / 作者 | 像素事务所（个人开发者，作者本人维护） |
-| 分发渠道 | 小红书 Red Skill 商店（`redskill`）；GitHub 仓库**尚未建立** |
-| 许可证 | 包内未附独立 LICENSE 文件；色盘数据为 MIT（见 §7）。使用条款以发布页说明为准 |
+| 分发渠道 | GitHub（`HSDC25/pixel-bead-blueprint`）与发布 zip；小红书 Red Skill 商店（`redskill`） |
+| 许可证 | MIT（见包内 `LICENSE`）；色盘数据同为 MIT，逐项来源见 §7 |
 
 ## 2. 一句话用途
 
@@ -40,7 +40,7 @@
 | 运行时 | Node.js ≥ 18（只用 `node:` 内置模块） |
 | 第三方依赖 | **0**（不需要 `npm install`） |
 | 包内二进制 | **0**（测试样张以 base64 内联在 `scripts/test/fixtures/fixtures.html`，首次运行时才解包） |
-| 包内文件数 | **26**（含本技能卡、`VERIFY.md`、`SIGNATURE.md`（内嵌签名载体）与 `evals/` 三件；全为文本与源码），上限 30 |
+| 包内文件数 | **28**（含本技能卡、`LICENSE`、`VERIFY.md`、`SIGNATURE.md`、`.gitattributes` 与 `evals/` 三件；全为文本与源码），上限 30 |
 | 外部服务 | 无 |
 
 ## 6. 权限矩阵（装它等于交出去什么）
@@ -72,8 +72,8 @@
 |---|---|
 | 关键文件 SHA256 | `assets/README.md` 文末「完整性校验」；整包哈希以发布页 zip SHA256 为准 |
 | 零依赖 / 零联网 / 零二进制 | §6 的三条 `grep` 命令可逐条复核 |
-| 回归测试 | `scripts/test/run.js`：**实测 tests 57 / pass 57 / fail 0**（2026-11-21 复跑，约 18s） |
-| 文件数合规 | 实测 **26**（≤30），2026-11-21 合并 `test-cases` 8→2、`palette.*.json` 5→1 后达标 |
+| 回归测试 | `scripts/test/run.js`：**实测 tests 57 / pass 57 / fail 0**（2026-11-24 复跑） |
+| 文件数合规 | 实测 **28**（≤30），2026-11-21 合并同职责文件，2026-11-24 新增 `.gitattributes` 强制 LF 与 `LICENSE` 明示 MIT |
 | 交付门禁可复现 | 不填 `review.md` → `REVIEW_UNFILLED` + exit 3；填完 → `REVIEW_SIGNED` + exit 0 |
 | 产出可复现 | 同一输入重跑，`compare/sheet/review/blueprint.*` 逐字节一致（2026-11-18 实测 7 个文件 hash 相同） |
 
@@ -82,8 +82,8 @@
 | 项 | 状态 |
 |---|---|
 | 第三方安全扫描（如 SkillSpector） | **未做** |
-| 真实 Agent 沙箱评测（`evals/evals.json` + BENCHMARK） | **未做**（仅有 `test-cases/` 人工用例 5 组 + 触发用例） |
-| 目录级加密签名（OMS） | ✅ **已签**（自签证书，2026-11-21）。签名以 base64 **内嵌在 `SIGNATURE.md`**（平台不收 `.sig`）；验签需 `--ignore_unsigned_files`，步骤见 `VERIFY.md` |
+| 真实 Agent 沙箱评测 | **CLI 部分已做**：`evals/evals.json` + `BENCHMARK.md`，6/6 通过；另有 2 项大模型在环人工验收 |
+| 目录级加密签名（OMS） | ✅ **已签**（自签证书，2026-11-21 签发，2026-11-24 重签）。签名以 base64 **内嵌在 `SIGNATURE.md`**；验签工具固定证书指纹并严格拒绝新增文件，步骤见 `VERIFY.md` |
 | 官方目录认证（NVIDIA Verified 等） | **无** |
 | 自证完整性 | ✅ 有（SHA256 + 门禁 + 可复现） |
 
@@ -98,4 +98,4 @@
 4. GitHub 仓库（`skills/pixel-bead-blueprint/SKILL.md` 结构）→ 可被 `npx skills add` / `gh skill install` 安装
 
 ---
-*本卡片随 v1.5.2 维护。任何字段与实际不符，以包内文件与实测输出为准。*
+*本卡片随 v1.5.3 维护。任何字段与实际不符，以包内文件与实测输出为准。*

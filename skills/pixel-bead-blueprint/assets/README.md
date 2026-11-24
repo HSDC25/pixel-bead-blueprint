@@ -1,18 +1,25 @@
-# 提交包说明与图纸示例索引（2026-10-26 · 视觉终审版）
+# 提交包说明与图纸示例索引（v1.5.3 · 2026-11-24）
 
 > 出品：像素事务所（Pixel Bureau）
 
-> ⚠️ **时效性**：本文基于 2026-10-28 修订（示例换蒙德里安公版图 / 数字按当前 CLI 复测；58 项测试 / review.png 视觉终审 + 交付门禁 / `--refine` 自动迭代 / `--patch-cells` 改格回路）。后续变更以实际文件为准。
-> **本目录即提交单元**：目录名 `pixel-bead-blueprint` 与 `SKILL.md` 的 frontmatter `name` **一致**（已核对）；**26 文件 / 解压约 3.7 MB**，满足赛题「单次 ≤30 文件 / ≤40MB」，**尚余 4 个配额**（新增 `evals/` 三件 + `VERIFY.md` + `SIGNATURE.md` 内嵌签名载体）。2026-11-21 两轮收口：① `test-cases` 8 → 2（`cases.md` = 功能判据 + 场景剧本 ×5 + 触发语表；`trigger.md` 留给 test-runner）；② `references/palette.*.json` 5 → 1（`palettes.json`，键 = mard / mard291 / perler / artkal-c197 / artkal-m221，CLI 别名不变）。另把新增 `skill-card.md`（技能卡）纳入配额。2026-11-21 追加：`evals/evals.json` + `run-evals.js` + `BENCHMARK.md`（可跑评测 6 项 CLI + 2 项人工）、`VERIFY.md`（OMS 验签说明）、`skill.oms.sig`（目录级签名）。
+> **时效性**：当前为 v1.5.3。示例使用蒙德里安公版图；57 项回归、6 项 CLI 评测 + 2 项人工、视觉终审与交付门禁均已复测。后续变更以实际文件为准。
+> **本目录即提交单元**：目录名 `pixel-bead-blueprint` 与 `SKILL.md` 的 frontmatter `name` **一致**（已核对）；**28 文件 / 解压约 3.44 MiB**，满足赛题「单次 ≤30 文件 / ≤40MB」，**尚余 2 个配额**。2026-11-21 两轮收口：① `test-cases` 8 → 2（`cases.md` = 功能判据 + 场景剧本 ×5 + 触发语表；`trigger.md` 留给 test-runner）；② `references/palette.*.json` 5 → 1（`palettes.json`，键 = mard / mard291 / perler / artkal-c197 / artkal-m221，CLI 别名不变）。另把新增 `skill-card.md`（技能卡）纳入配额。2026-11-21 追加：`evals/evals.json` + `run-evals.js` + `BENCHMARK.md`（可跑评测 6 项 CLI + 2 项人工）、`VERIFY.md`（OMS 验签说明）、`SIGNATURE.md`（内嵌签名载体）。2026-11-24 新增 `.gitattributes`（强制 Windows checkout 保持 LF）与 `LICENSE`（MIT）。
 > **结构**（对照官方技能包规范：根目录只留 `SKILL.md`，其余按白名单归位）：
 >
 > ```
 > pixel-bead-blueprint/
-> ├── SKILL.md            ← 唯一根文件
-> ├── assets/             ← README.md（本文件，评审视角）+ getting-started.md（小白上手指南，使用者视角）+ examples/（示例图纸 PNG 以 base64 内联在 .html）
-> ├── references/         ← palettes.json（5 套色盘合并，键=色盘名）+ 算法 .js + 辅导协议
-> ├── scripts/            ← run.js（CLI 入口）+ test/（自动化测试 + 样张）
-> └── test-cases/         ← cases.md（功能判据 + 场景剧本 ×5 + 触发语表）+ trigger.md（test-runner 触发用例）
+> ├── SKILL.md            ← 技能入口
+> ├── package.json        ← 版本、模块类型与许可证
+> ├── LICENSE             ← MIT 许可证
+> ├── .gitattributes     ← 强制 LF
+> ├── SIGNATURE.md       ← 内嵌签名与证书
+> ├── VERIFY.md          ← 验签与重签说明
+> ├── skill-card.md      ← 权限与验证状态
+> ├── assets/             ← README.md + getting-started.md + base64 示例
+> ├── references/         ← palettes.json + 算法 .js + 辅导协议
+> ├── scripts/            ← run.js + 回归测试 + base64 样张
+> ├── test-cases/         ← cases.md + trigger.md
+> └── evals/              ← evals.json + runner + BENCHMARK.md
 > ```
 > **命令执行位置**：包内所有复现命令（见 `SKILL.md`「关键数字复现命令」§）一律在**本包根目录**执行，例如 `node scripts/run.js <图> --grid 96`。**默认输出目录** = 当前工作目录下的 `pixel-bead-output/<图名>-gN/`（不再写进包内 assets）。
 > **样张可用性**：二进制样张与示例图以 **base64 内联**在 `scripts/test/fixtures/fixtures.html` 与 `assets/examples/*.html`；`run.js` 与测试启动时自动提取，无需手动还原（手动入口 `node references/fixtures.js`）。
@@ -20,7 +27,7 @@
 
 ## 质量门禁（2026-10-28 新增，实测驱动）
 
-> 背景：实测「白底黑字 64 格」场景——原图暗像素 21% → 输出 0%（字被抹平），但逐格 ΔE 只有 3.83（看着最准），CLI 仍无条件打印「完成」。以下四项为针对性修复，测试 51→58 项（v1.1.1 增补 T43 状态自洽 / T44 改格回路；v1.1.2 增补 T45 autocrop；v1.1.3 增补 T46 毛边-骑线）。
+> 背景：实测「白底黑字 64 格」场景——原图暗像素 21% → 输出 0%（字被抹平），但逐格 ΔE 只有 3.83（看着最准），CLI 仍无条件打印「完成」。以下四项为针对性修复，相关回归已并入当前 57 项测试。
 
 1. **结构保真指标 `structureRetention`**：原图暗结构（L*<35）占比 vs 输出暗豆占比；`srcDark ≥ 8%` 且保留率 < 40% ⇒ 终端与 `blueprint.md` 同时标 `STRUCTURE_LOSS`。
 2. **断线门控**：原图无暗结构（`darkRatio < 8%`）时不产出 `break` 红框——此前渐变/噪点图「断线率恒 100%、12 框全是误报」，真缺陷被淹没。
@@ -32,18 +39,11 @@
 > 自动化/对照实验可加 `--review-gate 0` 关闭交付门禁（包内测试即用此开关）。
 > 元测试：T40 结构保真 / T41 断线门控，锁定上述行为不回退。
 
-## 与源仓库的差异（防分叉，有意为之）
+## 与公开仓库的关系
 
-本包由 `skills/pixel-bead-blueprint-dev/` 收口而来；**2026-10-24 起两边目录结构已同步**（dev 也已改为 `scripts/` + `assets/examples/` + `scripts/test/`），差异只剩素材数量：
+公开仓库的 `skills/pixel-bead-blueprint/` 与本提交包保持同步。签名覆盖除 `SIGNATURE.md` 自身外的全部 27 个包内文件（总 28 个）；签名与验签均关闭 Git 路径忽略，`.gitattributes` 也在签名覆盖范围内。
 
-| 差异 | 源仓库（dev） | 提交包 | 原因 |
-|---|---|---|---|
-| 文件数 / 体积 | ~180 文件 | 31 文件 / ≤40MB | 赛题限制 + 平台白名单（仅文本类扩展名） |
-| 样张 | 19 张 | 3 张（base64 内联在 fixtures.html，运行时自动提取） | 平台白名单不收二进制 |
-| 示例图纸 | 21 份（六件套/份） | 1 份（两件套 PNG，base64 内联在 examples/*.html） | 同上 |
-| 真实图回归 | `scripts/test/fixtures-test.js` 9 项 | 未打包 | 依赖 10+ 张原图，无法压缩进 30 |
-
-> **收口方向唯一：改 dev，再裁剪出包**（不要反向从包改回 dev，会丢全量素材）。裁剪清单见 dev 的 `assets/README.md`。
+历史开发目录与全量素材不属于当前提交单元；本包只保留赛题限制内的文本、源码与 base64 示例。
 
 ## 图纸示例（节选）
 
@@ -94,14 +94,14 @@
 
 ## 完整性校验（v1.4.0 补）
 
-> 为什么只列五个：为控制文件数（赛题 **≤30 文件**，当前 25，尚余 5）。所以把校验信息写进本文件，不额外占配额——留出的配额可用于后续 `evals/` 或签名文件。
+> 为什么只列五个：为控制文件数（赛题 **≤30 文件**，当前 28，尚余 2）。所以把校验信息写进本文件，不额外占配额。
 
 改过的包，最容易出事的是「入口」和「算色」这两处，所以先核这五个：
 
 | 文件 | 字节 | SHA256 |
 |---|---|---|
-| `SKILL.md` | 33,809 | `519a1c7da735d5e024cdc3605659ce05b7b20a5a63ee07d1699bed5cd4a0730c` |
-| `package.json` | 279 | `78329172a0015f6ac672d5eda123576811188ad984c139bc8d5e2344151ac1d5` |
+| `SKILL.md` | 35,021 | `379c808e43a0401bab58d68aec3e4592bf064d956d0808de790db3040e2915a4` |
+| `package.json` | 299 | `c5595878822e6e01bf3333a05745ff895e507705eccc145686818ff9d076841a` |
 | `scripts/run.js` | 63,108 | `4e14bfc11e724686a4fed776d1100e85a6e1c841fedc7b7561107bea0b95d86a` |
 | `references/quantize.js` | 109,447 | `32eebfaf296550134fead3b43c5ba2cffa7830e0a370a17ad40e6961576171c5` |
 | `references/palettes.json` | 52,676 | `69b28426e3c49cfa6b2e75f6ff2124e990a415804f3bde15da5ad62239501d6c` |
@@ -115,4 +115,4 @@ certutil -hashfile SKILL.md SHA256               # Windows
 
 **整包**以发布页给出的 zip SHA256 为准（zip 无法自带自身哈希）。若上面五个对得上、整包也对得上，说明这个包从发布到现在没被动过；对不上就**先不要运行**，回到发布页核对来源。
 
-另外重申一句：本包 **零二进制、零第三方依赖**（`node:` 内置模块 + 包内文件），25 个文件里没有可执行体；运行后多出来的两个 jpg 是 `scripts/test/fixtures/fixtures.html` 解包的测试样张，不是随包发的。
+另外重申一句：本包 **零二进制、零第三方依赖**（`node:` 内置模块 + 包内文件），28 个文件里没有可执行体；运行后多出来的两个 jpg 是 `scripts/test/fixtures/fixtures.html` 解包的测试样张，不是随包发的。

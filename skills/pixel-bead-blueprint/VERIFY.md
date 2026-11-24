@@ -1,144 +1,141 @@
 # 签名与验签说明
 
-> **签名数据在本目录的 `SIGNATURE.md` 里**（base64 内嵌）。还原成 `skill.oms.sig` 后即可离线验签。
-> 为什么不用独立的 `.sig` 文件：平台白名单不收该扩展名；为什么签名不直接写进本文件：见第四节「自引用」。
+> 签名数据在本目录的 `SIGNATURE.md` 里，格式为 OpenSSF Model Signing（OMS / Sigstore bundle）。
+> 推荐使用发布包工具里的 `verify-signature.ps1` / `verify-signature.sh`。工具会固定可信证书指纹，并在临时副本上严格验签。
 
-## 一、签名盖住了什么
+## 一、签名保证什么
 
-格式为 OpenSSF Model Signing（OMS / Sigstore bundle，分离签名），覆盖本目录内**除 `SIGNATURE.md` 与 `skill.oms.sig` 之外**的每个文件。
-`SIGNATURE.md` 是签名之后新增的载体，因此验签要加 `--ignore_unsigned_files`（只忽略「未签名的新增文件」，改动任何已签文件仍会失败）。
+签名覆盖本目录内除 `SIGNATURE.md` 外的每个文件。`SIGNATURE.md` 是签名后新增的载体，所以验签工具会：
 
-> ⚠️ 能证明 / 不能证明
-> - 能证明：**已签文件未被改动**，且由持有该证书私钥的人签出。
-> - 不能证明：代码安全、质量合格、获得官方认证；也不能发现「有人额外塞进来的新文件」（这是本方案的已知取舍，见第五节）。
-> - 本签名使用**自签证书**。安全边界见 `skill-card.md`；行为判据见 `test-cases/cases.md`。
+1. 从载体还原签名与证书；
+2. 核对证书 SHA-256 指纹必须等于发布者固定值；
+3. 把技能复制到临时目录，并只排除 `SIGNATURE.md`；
+4. 签名与验签都使用 `--no-ignore-git-paths`，并显式使用 `--no-ignore_unsigned_files`，严格核对文件列表和每个文件的字节。
 
-## 二、签名与证书信息
+因此以下情况都会被拒绝：
+
+- 已签文件被修改；
+- 目录里多出任何文件；
+- 签名或证书被替换；
+- LF 被转换成 CRLF；
+- 先跑评测改写了 `evals/BENCHMARK.md` 后再验签。
+
+> 签名能证明已签内容未被改动，且由持有对应私钥的人签署；不能证明代码安全、质量合格或获得官方认证。本签名使用自签证书，发布者身份依靠固定指纹和公开分发渠道建立信任。
+
+## 二、证书信息
 
 | 项 | 值 |
 |---|---|
 | 签名格式 | OpenSSF Model Signing（Sigstore bundle） |
 | PKI 方式 | `certificate`（X.509 自签） |
 | 签署主体 | `CN=Pixel Studio Skill Signing, O=Pixel Studio, C=CN` |
-| 证书位置 | 内嵌在 `SIGNATURE.md` 的 `CERTBASE64` 块；GitHub 仓库另有 `pki/pixel-studio-skill-cert.pem` |
+| 签名算法 | ECDSA P-256 / SHA-256 |
+| 证书用途 | `KeyUsage` + `ExtendedKeyUsage(codeSigning)` |
+| 有效期 | 2026-11-20 至 2036-11-17 |
 | 证书指纹（SHA256） | `4A:56:E5:FA:FB:41:A2:00:F6:B1:E0:7E:88:68:AA:AE:16:13:EA:C3:E2:E1:38:E4:48:60:23:1D:1B:5D:01:24` |
-| 签名算法 | **ECDSA P-256 / SHA-256** |
-| 有效期 | 10 年（2026-11-21 签发） |
 
-私钥不在本目录、不在任何提交包内。
+私钥不在技能目录、不在任何提交包内，也不应随仓库分发。
 
-## 三、验签三步
+## 三、一条命令验签
 
-> **顺序要求（实测，2026-11-23）**：**先验签，再跑测试 / 评测**。
-> `node evals/run-evals.js` 会把本轮结果写回 `evals/BENCHMARK.md`，该文件在签名清单内，跑完再验签必然报 `Hash mismatch for 'evals/BENCHMARK.md'`。
-> 同理，`node --test` 首次运行会从 `scripts/test/fixtures/fixtures.html` 解包 2 个样张 jpg（26 → 28 个文件），属新增文件，被 `--ignore_unsigned_files` 忽略，不影响验签。
->
-> **Windows 换行提醒（实测，2026-11-23）**：在 Windows 用 `git clone` 取回时，默认 `core.autocrlf=true` 会把 LF 转成 CRLF，导致**22 个已签文件全部哈希不符**。取回请二选一：
-> - `git -c core.autocrlf=false clone https://github.com/HSDC25/pixel-bead-blueprint.git`
-> - 直接用发布 zip 解压（LF 原样保留）
->
-> 实测对照：zip 解压 → `Verification succeeded`；`autocrlf=false` clone → `Verification succeeded`；默认 clone → 22 个 `Hash mismatch`（exit 1）。
+### Windows / PowerShell 7
 
-### 1) 还原签名与证书（从 `SIGNATURE.md`）
+把 `verify-signature.ps1` 和技能目录放在可得的位置，然后执行：
 
 ```powershell
-# Windows PowerShell
-$t = Get-Content SIGNATURE.md -Raw
-$ms = [regex]::Matches($t,'(?s)<!-- (\w+):START -->(.*?)<!-- \1:END -->')
-$sig = ($ms[0].Groups[2].Value) -replace '\s',''
-[IO.File]::WriteAllBytes("$PWD\skill.oms.sig", [Convert]::FromBase64String($sig))
-$certB = ($ms[1].Groups[2].Value) -replace '\s',''
-[IO.File]::WriteAllText("$PWD\cert.pem", "-----BEGIN CERTIFICATE-----`n" + (($certB -replace '(.{64})', ('$1' + "`n")).Trim()) + "`n-----END CERTIFICATE-----`n")
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\verify-signature.ps1 -Path .\pixel-bead-blueprint
 ```
 
-```python
-# macOS / Linux（python3）：存成 restore.py 再运行
-import re, base64, pathlib
-s = pathlib.Path('SIGNATURE.md').read_text(encoding='utf-8')
-blk = re.findall(r'(?s)<!-- (\w+):START -->(.*?)<!-- \1:END -->', s)
-pathlib.Path('skill.oms.sig').write_bytes(base64.b64decode(''.join(blk[0][1].split())))
-b64 = ''.join(blk[1][1].split())
-pem = '-----BEGIN CERTIFICATE-----\n' + '\n'.join(b64[i:i+64] for i in range(0, len(b64), 64)) + '\n-----END CERTIFICATE-----\n'
-pathlib.Path('cert.pem').write_text(pem, encoding='ascii')
-```
-
-### 2) 安装验证器
+### macOS / Linux
 
 ```bash
-pip install model-signing
+bash verify-signature.sh ./pixel-bead-blueprint
 ```
 
-### 3) 验签
+虚拟环境可指定解释器：
 
 ```bash
-python -m model_signing verify certificate . \
-  --signature skill.oms.sig \
-  --certificate_chain cert.pem \
-  --ignore_unsigned_files
+PYTHON=/path/to/venv/bin/python bash verify-signature.sh ./pixel-bead-blueprint
 ```
 
-输出 `Verification succeeded` 即通过。
-**必须带 `--ignore_unsigned_files`** —— 因为 `SIGNATURE.md` 是签名之后才加进来的载体。
+缺少验签依赖时安装：
 
-## 四、为什么签名不写进本文件（自引用问题）
+```bash
+python -m pip install model-signing==1.1.1 certifi pyopenssl
+```
 
-目录级签名不能覆盖「装着签名的那个文件」：
+成功输出必须同时包含：
 
-1. 若把 base64 写进 `VERIFY.md`，签名前它必须已含 base64，而 base64 又是签名的产物 —— 循环依赖；
-2. 直觉方案是「签名时忽略 VERIFY.md」，但 **model-signing 1.1.1 的 `--ignore-paths` 实测无效**（见第五节坑 5）;
-3. 所以改用官方另一条路：**签名后新增 `SIGNATURE.md` 作为载体**，验签时 `--ignore_unsigned_files` 忽略它。
+```text
+Verification succeeded
+==> 严格验签通过
+```
 
-## 五、实测坑（model-signing 1.1.1，2026-11-21）
+## 四、为什么不再使用 `--ignore_unsigned_files`
 
-| # | 现象 | 结论 |
-|---|---|---|
-| 1 | 只传 `--signing_certificate` → `Unable to load PEM file … MalformedFraming` | certificate 模式**必须同时传 `--certificate_chain`** |
-| 2 | RSA 私钥 → `RSAPublicKey object has no attribute 'curve'` | **必须 ECDSA P-256** |
-| 3 | 证书无扩展 → `Signing certificate cannot be used for signing` | 证书要带 **KeyUsage + ExtendedKeyUsage(codeSigning)** |
-| 4 | `--certificate-chain` 报选项不存在 | 参数名是**下划线** |
-| 5 | `--ignore-paths b.txt` / `./b.txt` / 目录 `sub` 全无效（实测：三者仍出现在签名清单） | **1.1.1 的 `--ignore-paths` 不可用**；改用 `--ignore_unsigned_files` |
-| 6 | 严格模式多一个文件 → `Extra files found` | 加 `--ignore_unsigned_files` 可忽略**新增**文件；但**改动已签文件仍会 Hash mismatch**（已实测） |
-| 7 | Windows 默认 `git clone`（`core.autocrlf=true`）→ **22 个已签文件全部** `Hash mismatch` | 换行符 LF→CRLF 改了字节；取回用 `git -c core.autocrlf=false clone` 或 zip 解压 |
-| 8 | 先跑 `node evals/run-evals.js` 再验签 → `Hash mismatch for 'evals/BENCHMARK.md'` | 评测把结果写回该文件（已在清单内）；**先验签、再评测** |
+平台不接受独立 `.sig` 文件，因此签名和证书内嵌在 `SIGNATURE.md`。旧验签方式向该选项忽略未签名新增文件，攻击者可能额外塞入文件而未被发现。
 
-## 五点五、分发渠道差异（实测 2026-11-23）
+现在的严格方式不需要平台多收一个文件：验签工具在临时副本中排除载体文件，签名与证书也放在临时目录外，然后使用严格模式。这样既解决自引用，又保留新增文件检测。
 
-| 渠道 | 取回内容 | 签名能否验过 | 说明 |
-|---|---|---|---|
-| 发布 zip 解压 | 26 文件，LF 原样 | ✅ 验过 | 最稳；`sha256` 与发布记录一致 |
-| `git -c core.autocrlf=false clone` | 26 文件，LF | ✅ 验过 | 必须关 CRLF 转换 |
-| `git clone`（Windows 默认） | 26 文件，CRLF | ❌ 22 个文件全不符 | 换行转换改了字节 |
-| 小红书 RedSkill 商店 | 26 文件（v1.5.0，3.4411 MB） | ✅ 验过 | 实测未改换行；但商店 CLI 在 Windows 上启动即 `ModuleNotFoundError: fcntl`，仅 macOS / Linux 可装 |
+## 五、CRLF / LF 规则
 
-结论：**签名只保证「字节未被改动」，不保证「渠道给你的是最新版」**。商店版可能是旧版本，验签只能证明它自己没被篡改。
+签名校验的是**字节**，不是语义。LF 改成 CRLF 即使代码功能不变，哈希也会变化。
 
-## 六、本方案的已知取舍
+本包采用以下约束：
 
-| 项 | 说明 |
+1. 技能目录和仓库根目录都有 `.gitattributes`：`* text=auto eol=lf`；
+2. Windows 默认 `core.autocrlf=true` 时，Git 仍按属性签出 LF；
+3. 发布 zip 保留 LF 原样；
+4. 重签脚本发现文本文件含 CRLF 会直接拒绝；
+5. 验签脚本不会自动转换换行，避免把被篡改文件“修成可验”。
+
+取回方式：
+
+| 渠道 | 结果 |
 |---|---|
-| 新增文件不设防 | 有人往目录里**添加**文件，`--ignore_unsigned_files` 下不会被发现 |
-| 缓解 | 交付包文件数与清单在 `assets/README.md` 固定；评审可按清单核对是否多出文件 |
-| 若平台支持 `.sig` | 把 `SIGNATURE.md` 还原出的 `skill.oms.sig` 单独提交，验签去掉 `--ignore_unsigned_files` 即为严格模式 |
-| 证书可信度 | 自签：能证「未被改动」，发布者身份需自行信任本仓库 |
+| 发布 zip 解压 | 推荐，字节原样保留 |
+| 新仓库 `git clone` | `.gitattributes` 强制 LF |
+| 旧提交或旧 clone | 可能仍是 CRLF，应重新下载 zip 或更新仓库属性 |
 
-## 七、不靠签名也能验的东西
+如果本地旧 clone 已产生 CRLF，可在仓库根执行一次重新规范化，再由发布者提交：
 
 ```bash
-node --test scripts/test/run.js     # 回归测试 57 项（实测 57/57）
-node evals/run-evals.js             # 评测 6 项 CLI（实测 6/6）+ 2 项人工验收
+git add --renormalize .
+git status
 ```
 
-关键文件 SHA256 见 `assets/README.md` 文末「完整性校验」。
+## 六、测试与验签顺序
 
-## 八、重签流程（发布者本机）
+必须**先验签，再跑测试/评测**。`node evals/run-evals.js` 会改写 `evals/BENCHMARK.md`；`node --test` 首次运行会解包两个样张 jpg。它们都会让严格验签失败。
+
+推荐在临时副本里测试：
+
+```bash
+node --test --test-reporter=tap scripts/test/run.js
+node evals/run-evals.js
+```
+
+一键安装脚本会自动创建测试副本，并从未修改的原始解包目录安装，不会把测试产物装进技能目录。
+
+## 七、重签流程
+
+发布者使用工作区工具 `promo/sign-embed.ps1`，在暂存副本执行：
 
 ```powershell
-# 1) 删除旧载体与旧签名
-Remove-Item SIGNATURE.md, skill.oms.sig -Force -ErrorAction SilentlyContinue
-# 2) 签名（此时目录里没有 SIGNATURE.md）
-python -m model_signing sign certificate . --signature skill.oms.sig `
-  --private_key <私钥.pem> --signing_certificate <证书.pem> --certificate_chain <证书.pem>
-# 3) 用 skill.oms.sig 生成 SIGNATURE.md（base64 两块：SIGBASE64 / CERTBASE64），再删除 skill.oms.sig
-# 4) 验签自检
-python -m model_signing verify certificate . --signature skill.oms.sig --certificate_chain cert.pem --ignore_unsigned_files
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\promo\sign-embed.ps1 `
+  -Dir .\pixel-bead-blueprint `
+  -Key <私钥路径> -Cert <证书路径>
 ```
+
+脚本会先核对证书指纹、拒绝 CRLF、把旧载体移到临时目录；签名失败时恢复旧载体。签名输出也放在临时目录，不会污染被签目录。
+
+重签后必须重新打包，并用最终 zip 解压再做一次严格验签和完整测试。
+
+## 八、model-signing 1.1.1 注意事项
+
+- certificate 模式必须同时提供 `--signing_certificate` 和 `--certificate_chain`；
+- 参数名使用下划线，如 `--certificate_chain`；
+- 当前证书使用 ECDSA P-256，并包含 KeyUsage 与 codeSigning EKU；
+- `--ignore-paths` 在该版本实测无效，本方案不依赖它；
+- model-signing 默认忽略 Git 相关文件，因此签名与验签必须显式加 `--no-ignore-git-paths`，确保 `.gitattributes` 也被覆盖；
+- `--no-ignore_unsigned_files` 显式保留新增文件检测。
