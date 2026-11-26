@@ -54,7 +54,7 @@ gh skill install HSDC25/pixel-bead-blueprint --agent claude-code --scope user
 gh skill install HSDC25/pixel-bead-blueprint --pin v1.5.3
 ```
 
-`npx` / `gh skill install` 只负责便捷安装，不会自动执行本仓库的验签与备份流程；需要“先验签再安装”时使用上面的 AI 一键路径。
+`npx` / `gh skill install` 只负责便捷安装，**不会自动验签**。装完请再跑一次 `verify-signature.ps1 -Path <安装目录>`（或 `verify-signature.sh`）；需要“先验签再安装 + 备份旧版”时使用上面的 AI 一键路径。
 
 **手动：Git clone**
 
@@ -96,6 +96,18 @@ coaching.md         陪拼计划（难度 / 工时 / 场次 / 校验点 / 易错
 blueprint.json      逐格色号矩阵（机读）
 blueprint-ascii.txt 文本矩阵（可逐行核数）
 ```
+
+## 仓库防投毒
+
+仓库按“改动必须留痕、发布必须可验”配置：
+
+- `main` 禁止强推与删除，要求线性历史；`v*` 标签禁止移动与删除
+- Secret scanning 与 push protection 已开启
+- Actions 只允许 GitHub 官方 action，且必须固定到完整 commit SHA；工作流令牌默认只读
+- CI 在每次 push / PR 时先严格验签，再跑 57 项回归与 6 项 CLI 评测
+- 漏洞报告走 GitHub 私密渠道，见 [SECURITY.md](SECURITY.md)
+
+这层防护只保证“仓库里的技能包没被悄悄改过”；它不等于第三方安全认证。
 
 ## 签名与信任链
 

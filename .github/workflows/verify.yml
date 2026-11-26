@@ -1,0 +1,37 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: "22"
+      - name: Verify OMS signature
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --disable-pip-version-check --no-input \
+            "model-signing==1.1.1" certifi pyopenssl
+          PYTHON=.venv/bin/python ./verify-signature.sh ./skills/pixel-bead-blueprint
+      - name: Regression tests
+        working-directory: skills/pixel-bead-blueprint
+        run: node --test --test-reporter=tap scripts/test/run.js
+      - name: CLI evals
+        working-directory: skills/pixel-bead-blueprint
+        run: node evals/run-evals.js
