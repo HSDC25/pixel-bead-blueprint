@@ -28,7 +28,7 @@ jobs:
           python3 -m venv .venv
           .venv/bin/python -m pip install --disable-pip-version-check --no-input \
             "model-signing==1.1.1" certifi pyopenssl
-          PYTHON=.venv/bin/python ./verify-signature.sh ./skills/pixel-bead-blueprint
+          PYTHON=.venv/bin/python bash ./verify-signature.sh ./skills/pixel-bead-blueprint
       - name: Regression tests
         working-directory: skills/pixel-bead-blueprint
         run: node --test --test-reporter=tap scripts/test/run.js
