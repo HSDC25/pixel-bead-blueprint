@@ -3,15 +3,14 @@
 > 出品：像素事务所（Pixel Bureau）
 
 > **时效性**：当前为 v1.5.3。示例使用蒙德里安公版图；57 项回归、6 项 CLI 评测 + 2 项人工、视觉终审与交付门禁均已复测。后续变更以实际文件为准。
-> **本目录即提交单元**：目录名 `pixel-bead-blueprint` 与 `SKILL.md` 的 frontmatter `name` **一致**（已核对）；**28 文件 / 解压约 3.44 MiB**，满足赛题「单次 ≤30 文件 / ≤40MB」，**尚余 2 个配额**。2026-11-21 两轮收口：① `test-cases` 8 → 2（`cases.md` = 功能判据 + 场景剧本 ×5 + 触发语表；`trigger.md` 留给 test-runner）；② `references/palette.*.json` 5 → 1（`palettes.json`，键 = mard / mard291 / perler / artkal-c197 / artkal-m221，CLI 别名不变）。另把新增 `skill-card.md`（技能卡）纳入配额。2026-11-21 追加：`evals/evals.json` + `run-evals.js` + `BENCHMARK.md`（可跑评测 6 项 CLI + 2 项人工）、`VERIFY.md`（OMS 验签说明）、`SIGNATURE.md`（内嵌签名载体）。2026-11-24 新增 `.gitattributes`（强制 Windows checkout 保持 LF）与 `LICENSE`（MIT）。
+> **本目录即提交单元**：目录名 `pixel-bead-blueprint` 与 `SKILL.md` 的 frontmatter `name` **一致**（已核对）；**27 文件 / 解压约 3.44 MiB**，满足赛题「单次 ≤30 文件 / ≤40MB」，**尚余 3 个配额**。2026-11-21 两轮收口：① `test-cases` 8 → 2（`cases.md` = 功能判据 + 场景剧本 ×5 + 触发语表；`trigger.md` 留给 test-runner）；② `references/palette.*.json` 5 → 1（`palettes.json`，键 = mard / mard291 / perler / artkal-c197 / artkal-m221，CLI 别名不变）。另把新增 `skill-card.md`（技能卡）纳入配额。2026-11-21 追加：`evals/evals.json` + `run-evals.js` + `BENCHMARK.md`（可跑评测 6 项 CLI + 2 项人工）、`VERIFY.md`（OMS 验签说明）、`SIGNATURE.md`（内嵌签名载体）。2026-11-24 新增 `LICENSE.md`（MIT）；包内不再放 `.gitattributes`，LF 由仓库根同名文件负责。
 > **结构**（对照官方技能包规范：根目录只留 `SKILL.md`，其余按白名单归位）：
 >
 > ```
 > pixel-bead-blueprint/
 > ├── SKILL.md            ← 技能入口
 > ├── package.json        ← 版本、模块类型与许可证
-> ├── LICENSE             ← MIT 许可证
-> ├── .gitattributes     ← 强制 LF
+> ├── LICENSE.md          ← MIT 许可证
 > ├── SIGNATURE.md       ← 内嵌签名与证书
 > ├── VERIFY.md          ← 验签与重签说明
 > ├── skill-card.md      ← 权限与验证状态
@@ -41,7 +40,7 @@
 
 ## 与公开仓库的关系
 
-公开仓库的 `skills/pixel-bead-blueprint/` 与本提交包保持同步。签名覆盖除 `SIGNATURE.md` 自身外的全部 27 个包内文件（总 28 个）；签名与验签均关闭 Git 路径忽略，`.gitattributes` 也在签名覆盖范围内。
+公开仓库的 `skills/pixel-bead-blueprint/` 与本提交包保持同步。签名覆盖除 `SIGNATURE.md` 自身外的全部 26 个包内文件（总 27 个）；签名与验签均关闭 Git 路径忽略。包内不含 `.gitattributes`，LF 由仓库根属性保证。
 
 历史开发目录与全量素材不属于当前提交单元；本包只保留赛题限制内的文本、源码与 base64 示例。
 
@@ -94,13 +93,13 @@
 
 ## 完整性校验（v1.4.0 补）
 
-> 为什么只列五个：为控制文件数（赛题 **≤30 文件**，当前 28，尚余 2）。所以把校验信息写进本文件，不额外占配额。
+> 为什么只列五个：为控制文件数（赛题 **≤30 文件**，当前 27，尚余 3）。所以把校验信息写进本文件，不额外占配额。
 
 改过的包，最容易出事的是「入口」和「算色」这两处，所以先核这五个：
 
 | 文件 | 字节 | SHA256 |
 |---|---|---|
-| `SKILL.md` | 35,021 | `379c808e43a0401bab58d68aec3e4592bf064d956d0808de790db3040e2915a4` |
+| `SKILL.md` | 35,053 | `6347170d037fd425b9ea30b048a5e3f7b541a118b0e4b22a0b4e58a8643c1e14` |
 | `package.json` | 299 | `c5595878822e6e01bf3333a05745ff895e507705eccc145686818ff9d076841a` |
 | `scripts/run.js` | 63,108 | `4e14bfc11e724686a4fed776d1100e85a6e1c841fedc7b7561107bea0b95d86a` |
 | `references/quantize.js` | 109,447 | `32eebfaf296550134fead3b43c5ba2cffa7830e0a370a17ad40e6961576171c5` |
@@ -115,4 +114,4 @@ certutil -hashfile SKILL.md SHA256               # Windows
 
 **整包**以发布页给出的 zip SHA256 为准（zip 无法自带自身哈希）。若上面五个对得上、整包也对得上，说明这个包从发布到现在没被动过；对不上就**先不要运行**，回到发布页核对来源。
 
-另外重申一句：本包 **零二进制、零第三方依赖**（`node:` 内置模块 + 包内文件），28 个文件里没有可执行体；运行后多出来的两个 jpg 是 `scripts/test/fixtures/fixtures.html` 解包的测试样张，不是随包发的。
+另外重申一句：本包 **零二进制、零第三方依赖**（`node:` 内置模块 + 包内文件），27 个文件里没有可执行体；运行后多出来的两个 jpg 是 `scripts/test/fixtures/fixtures.html` 解包的测试样张，不是随包发的。

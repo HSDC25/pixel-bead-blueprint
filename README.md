@@ -5,7 +5,7 @@
 - 零第三方运行时依赖（只用 `node:` 内置模块）
 - 零二进制、运行时不联网、只写输出目录
 - Agent Skill 规范：`SKILL.md` + `scripts/` + `references/` + `assets/`
-- 当前版本 **v1.5.3**，技能包 **28 个文件**（MIT）
+- 当前版本 **v1.5.3**，技能包 **27 个文件**（MIT）
 - 兼容支持 skills 的智能体；本赛事使用华为云码道 CodeArts
 
 ## 安装
@@ -36,7 +36,7 @@
 4. 脚本会按需安装 Node.js LTS、创建独立 Python 虚拟环境并安装 `model-signing==1.1.1`，然后依次完成：**严格验签 → 临时副本跑 57 项回归与 6 项 CLI 评测 → 真实安装 → 旧版备份**。任何一步失败都返回非零并停止。
 5. 向用户回报实际结果，不要把“安装成功”当成“已通过安全认证”。
 
-安装脚本位于仓库根目录，不占 Skill 的 28 个文件配额；`SKILL.md` 只有安装后才会加载，不能充当首次安装入口。若系统没有 winget / Chocolatey，或 UAC、公司策略拒绝安装依赖，AI 应如实停下并说明缺少什么。
+安装脚本位于仓库根目录，不占 Skill 的 27 个文件配额；`SKILL.md` 只有安装后才会加载，不能充当首次安装入口。若系统没有 winget / Chocolatey，或 UAC、公司策略拒绝安装依赖，AI 应如实停下并说明缺少什么。
 
 **便捷安装：skills CLI**
 
@@ -125,7 +125,7 @@ PYTHON=python ./verify-signature.sh ./skills/pixel-bead-blueprint
 1. 从 `SIGNATURE.md` 解析并还原签名、证书，拒绝重复或缺失块。
 2. 比对固定证书指纹；不可信证书直接拒绝。
 3. 复制技能到临时目录，只排除 `SIGNATURE.md` 自身。
-4. 调用 `model-signing` 严格验签，显式使用 `--no-ignore-git-paths --no-ignore_unsigned_files`，确保 `.gitattributes` 也被签名覆盖。
+4. 调用 `model-signing` 严格验签，显式使用 `--no-ignore-git-paths --no-ignore_unsigned_files`；提交包不含 `.gitattributes`，LF 由仓库根属性保证。
 5. 不修改被检目录；临时文件自动清理。
 
 因此下列情况都会被拒绝：已签文件被修改、包内新增文件、证书被替换、文本 LF 被转成 CRLF。私钥不进入发布包；签名仅以 `SIGNATURE.md` 内嵌形式分发，私钥不进入公开仓库。
@@ -154,10 +154,10 @@ node evals/run-evals.js
 
 ```text
 文件：pixel-bead-blueprint-v1.5.3-提交版.zip
-文件数：28
-zip 大小：2,498,691 B（约 2.38 MiB）
-解压大小：3,609,002 B（约 3.44 MiB）
-SHA256：c1e6215e8b9be59b0b9e02bc98bef7ef4222ff34c43db31c221115cc5bb78f1f
+文件数：27
+zip 大小：2,498,470 B（约 2.38 MiB）
+解压大小：3,608,780 B（约 3.44 MiB）
+SHA256：b5db06313bb5e7d09816b82ae11958ee81fdfefc5c4e4a4c55c25634bcac5e0b
 ```
 
 最终 zip 已解压复核：严格验签通过，57/57 回归通过，6/6 CLI 评测通过。
@@ -181,8 +181,7 @@ pixel-bead-blueprint/
         ├── VERIFY.md                验签、LF/CRLF 与重签说明
         ├── skill-card.md            权限矩阵 / 风险 / 验证状态
         ├── package.json
-        ├── LICENSE                   MIT 许可证
-        ├── .gitattributes
+        ├── LICENSE.md                MIT 许可证
         ├── assets/                  上手指南 + 哈希 + 示例
         ├── references/              算法 / 辅导协议 / 5 套色盘
         ├── scripts/                 CLI + 回归测试 + 样张载体
@@ -196,5 +195,5 @@ pixel-bead-blueprint/
 
 ## 许可
 
-代码与文档：MIT（见仓库根目录与技能包内的 `LICENSE`）。
+代码与文档：MIT（见仓库根目录 `LICENSE` 与技能包内 `LICENSE.md`）。
 色盘数据：MARD / Perler / Artkal 公开品牌标准，来源逐条列于 `references/palette-sources.md`。

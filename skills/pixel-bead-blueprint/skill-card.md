@@ -12,7 +12,7 @@
 | 类型 | Agent Skill（Anthropic Agent Skills 规范：`SKILL.md` + `scripts/` + `references/` + `assets/`） |
 | 所有者 / 作者 | 像素事务所（个人开发者，作者本人维护） |
 | 分发渠道 | GitHub（`HSDC25/pixel-bead-blueprint`）与发布 zip；小红书 Red Skill 商店（`redskill`） |
-| 许可证 | MIT（见包内 `LICENSE`）；色盘数据同为 MIT，逐项来源见 §7 |
+| 许可证 | MIT（见包内 `LICENSE.md`）；色盘数据同为 MIT，逐项来源见 §7 |
 
 ## 2. 一句话用途
 
@@ -40,7 +40,7 @@
 | 运行时 | Node.js ≥ 18（只用 `node:` 内置模块） |
 | 第三方依赖 | **0**（不需要 `npm install`） |
 | 包内二进制 | **0**（测试样张以 base64 内联在 `scripts/test/fixtures/fixtures.html`，首次运行时才解包） |
-| 包内文件数 | **28**（含本技能卡、`LICENSE`、`VERIFY.md`、`SIGNATURE.md`、`.gitattributes` 与 `evals/` 三件；全为文本与源码），上限 30 |
+| 包内文件数 | **27**（含本技能卡、`LICENSE.md`、`VERIFY.md`、`SIGNATURE.md` 与 `evals/` 三件；全为带扩展名的文本与源码），上限 30 |
 | 外部服务 | 无 |
 
 ## 6. 权限矩阵（装它等于交出去什么）
@@ -73,7 +73,7 @@
 | 关键文件 SHA256 | `assets/README.md` 文末「完整性校验」；整包哈希以发布页 zip SHA256 为准 |
 | 零依赖 / 零联网 / 零二进制 | §6 的三条 `grep` 命令可逐条复核 |
 | 回归测试 | `scripts/test/run.js`：**实测 tests 57 / pass 57 / fail 0**（2026-11-24 复跑） |
-| 文件数合规 | 实测 **28**（≤30），2026-11-21 合并同职责文件，2026-11-24 新增 `.gitattributes` 强制 LF 与 `LICENSE` 明示 MIT |
+| 文件数合规 | 实测 **27**（≤30），2026-11-21 合并同职责文件，2026-11-24 新增 `LICENSE.md` 明示 MIT；LF 由仓库根 `.gitattributes` 保证 |
 | 交付门禁可复现 | 不填 `review.md` → `REVIEW_UNFILLED` + exit 3；填完 → `REVIEW_SIGNED` + exit 0 |
 | 产出可复现 | 同一输入重跑，`compare/sheet/review/blueprint.*` 逐字节一致（2026-11-18 实测 7 个文件 hash 相同） |
 

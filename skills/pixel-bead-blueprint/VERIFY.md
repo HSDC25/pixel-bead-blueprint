@@ -83,8 +83,8 @@ Verification succeeded
 
 本包采用以下约束：
 
-1. 技能目录和仓库根目录都有 `.gitattributes`：`* text=auto eol=lf`；
-2. Windows 默认 `core.autocrlf=true` 时，Git 仍按属性签出 LF；
+1. 仓库根目录有 `.gitattributes`：`* text=auto eol=lf`；提交包内不含该文件；
+2. Windows 默认 `core.autocrlf=true` 时，Git 仍按仓库根属性签出 LF；
 3. 发布 zip 保留 LF 原样；
 4. 重签脚本发现文本文件含 CRLF 会直接拒绝；
 5. 验签脚本不会自动转换换行，避免把被篡改文件“修成可验”。
@@ -94,7 +94,7 @@ Verification succeeded
 | 渠道 | 结果 |
 |---|---|
 | 发布 zip 解压 | 推荐，字节原样保留 |
-| 新仓库 `git clone` | `.gitattributes` 强制 LF |
+| 新仓库 `git clone` | 仓库根 `.gitattributes` 强制 LF |
 | 旧提交或旧 clone | 可能仍是 CRLF，应重新下载 zip 或更新仓库属性 |
 
 如果本地旧 clone 已产生 CRLF，可在仓库根执行一次重新规范化，再由发布者提交：
@@ -137,5 +137,5 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\promo\sign-embed.ps1 `
 - 参数名使用下划线，如 `--certificate_chain`；
 - 当前证书使用 ECDSA P-256，并包含 KeyUsage 与 codeSigning EKU；
 - `--ignore-paths` 在该版本实测无效，本方案不依赖它；
-- model-signing 默认忽略 Git 相关文件，因此签名与验签必须显式加 `--no-ignore-git-paths`，确保 `.gitattributes` 也被覆盖；
+- model-signing 默认忽略 Git 相关文件，因此签名与验签仍显式加 `--no-ignore-git-paths`；提交包本身不含 `.gitattributes`，LF 由仓库根属性保证；
 - `--no-ignore_unsigned_files` 显式保留新增文件检测。

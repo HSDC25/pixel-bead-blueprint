@@ -7,7 +7,7 @@ version: 1.5.3
 
 # 像素事务所 · AI 拼豆辅导 Skill（pixel-bead-blueprint）
 
-> 版本：v1.5.3（2026-11-24 加固）｜功能与 CLI 零改动：① 验签固定发布者证书指纹，并在临时副本严格拒绝新增文件；② 一键脚本先严格验签、再在测试副本自检，最后真实安装并备份旧版；③ `.gitattributes` 强制 Windows checkout 保持 LF，重签拒绝 CRLF；④ 修复签名载体代码块并增加失败回滚。当前包 **28 文件**（新增 `.gitattributes` 与 `LICENSE`），回归 57/57、CLI 评测 6/6。v1.5.0 的 `evals/`、技能卡、内嵌签名与仓库结构保持不变。
+> 版本：v1.5.3（2026-11-24 加固）｜功能与 CLI 零改动：① 验签固定发布者证书指纹，并在临时副本严格拒绝新增文件；② 一键脚本先严格验签、再在测试副本自检，最后真实安装并备份旧版；③ `.gitattributes` 强制 Windows checkout 保持 LF，重签拒绝 CRLF；④ 修复签名载体代码块并增加失败回滚。当前包 **27 文件**（新增 `LICENSE.md`；仓库根 `.gitattributes` 负责 LF），回归 57/57、CLI 评测 6/6。v1.5.0 的 `evals/`、技能卡、内嵌签名与仓库结构保持不变。
 > **Windows 用户先看这条**：商店 CLI（RedSkill 0.1.0）在 Windows 上一启动就报 `fcntl` 缺失，`redskill install` 走不通。请直接用发布 zip 解压，或 `npx skills add HSDC25/pixel-bead-blueprint`；商店渠道只适用于 macOS / Linux。
 >
 > 上版 v1.4.0（2026-11-16）：① **清理 2 个运行产物 jpg**——包内真正做到零二进制，与本节自述一致（样张由 `fixtures.html` 运行时解包，不随包发）；② 新增「安全边界」一节，逐条说明跑什么、读写什么、联不联网，每条附复核命令；③ `assets/README.md` 文末补「完整性校验」（关键文件 SHA256 + 核对方法，不额外占文件配额）；④ 版本号统一 v1.4.0（SKILL.md / package.json）；⑤ **新增「平色几何图直接给格子」判据**，并把像素画的题材边界写明（只擅长简笔画/扁平插画/几何构图，照片与渐变必然散）
@@ -21,7 +21,7 @@ version: 1.5.3
 > 一句话：上传任意图片 → AI 老师给「一份能拼的图纸」并**陪学员拼完**。AI 文生图给的是「一张像像素画的图」；离线 APP 给的是「图纸文件」；本 skill 给的是**图纸 + 因人而异的教学计划 + 施工期 AI 陪拼 + 完工复盘与库存闭环**。
 > **agent 必读辅导协议**：references/ai-tutor-protocol.md （六步辅导环 + 禁区红线）。
 >
-> **文件配额收口（2026-11-21，2026-11-24 更新）**：`test-cases/` 8 文件 → 2（`cases.md` + `trigger.md`）；`references/palette.*.json` 5 文件 → 1（`palettes.json`，键 = `mard` / `mard291` / `perler` / `artkal-c197` / `artkal-m221`）。包内文件数 **28**（新增 `.gitattributes` 强制 LF 与 `LICENSE` 明示 MIT），满足赛题「≤30 文件」。CLI 用法不变：`--palette mard|mard291|perler|artkal-c197|artkal-m221`。
+> **文件配额收口（2026-11-21，2026-11-24 更新）**：`test-cases/` 8 文件 → 2（`cases.md` + `trigger.md`）；`references/palette.*.json` 5 文件 → 1（`palettes.json`，键 = `mard` / `mard291` / `perler` / `artkal-c197` / `artkal-m221`）。包内文件数 **27**（新增 `LICENSE.md` 明示 MIT；仓库根 `.gitattributes` 负责 LF），满足赛题「≤30 文件」。CLI 用法不变：`--palette mard|mard291|perler|artkal-c197|artkal-m221`。
 
 ## 触发词
 
