@@ -101,13 +101,14 @@ blueprint-ascii.txt 文本矩阵（可逐行核数）
 
 仓库按“改动必须留痕、发布必须可验”配置：
 
-- `main` 禁止强推与删除，要求线性历史；`v*` 标签禁止移动与删除
+- `main` 只接受 PR，`verify` 检查必须通过，提交必须签名；禁止强推、删除与合并提交
+- `v*` 标签禁止移动与删除；Release 不可变
 - Secret scanning 与 push protection 已开启
 - Actions 只允许 GitHub 官方 action，且必须固定到完整 commit SHA；工作流令牌默认只读
 - CI 在每次 push / PR 时先严格验签，再跑 57 项回归与 6 项 CLI 评测
 - 漏洞报告走 GitHub 私密渠道，见 [SECURITY.md](SECURITY.md)
 
-这层防护只保证“仓库里的技能包没被悄悄改过”；它不等于第三方安全认证。
+维护者本地提交使用已登记为 Signing Key 的 SSH 密钥；GitHub 网页提交由 GitHub 自动签名。这层防护只保证“仓库里的技能包没被悄悄改过”，不等于第三方安全认证。
 
 ## 签名与信任链
 

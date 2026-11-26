@@ -24,12 +24,14 @@ https://github.com/HSDC25/pixel-bead-blueprint/security/advisories/new
 
 ## 仓库侧防护
 
-- `main` 禁止强推与删除，要求线性历史
-- `v*` 标签禁止移动与删除
+- `main` 只接受 PR，`verify` 检查必须通过，提交必须签名；禁止强推、删除与合并提交
+- `v*` 标签禁止移动与删除；Release 不可变
 - Secret scanning 与 push protection 已开启
 - Actions 只允许 GitHub 官方 action，且必须固定到完整 commit SHA
 - 工作流令牌默认只读
 - CI 在每次 push / PR 时先严格验签，再跑回归与评测
+
+维护者使用已登记为 Signing Key 的 SSH 密钥提交；GitHub 网页提交由 GitHub 自动签名。直接向 `main` 推送会被规则集拒绝。
 
 ## 用户侧核验
 
